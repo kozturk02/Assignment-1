@@ -18,11 +18,13 @@ app.post('/contacts', (req, res) => {
     res.status(201).json({ id: info.lastInsertRowid, name, email, phone});
 });
 
+// READ all contacts
 app.get('/contacts', (req, res) => {
     const contacts = db.prepare('SELECT * FROM contacts').all();
     res.json(contacts);
 });
 
+// READ single contact
 app.get('/contacts/:id', (req, res) => {
     const contact = db.prepare('SELECT * FROM contacts WHERE id = ?').get(req.params.id);
 
@@ -33,6 +35,21 @@ app.get('/contacts/:id', (req, res) => {
     res.json(contact);
 });
 
+// UPDATE
+app.put('/contacts/:id', (req, res) => {
+  const { name, email, phone } = req.body;
+
+  const stmt = db.prepare('UPDATE contacts SET name = ?, email = ?, phone = ? WHERE id = ?');
+  const result = stmt.run(name, email, phone, req.params.id);
+
+  if (result.changes === 0) {
+    return res.status(404).json({ error: 'Contact not found' });
+  }
+
+  res.json({ id: Number(req.params.id), name, email, phone });
+});
+
+// DELETE
 app.delete('/contacts/:id', (req, res) => {
   const stmt = db.prepare('DELETE FROM contacts WHERE id = ?');
   const result = stmt.run(req.params.id);
