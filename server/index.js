@@ -13,9 +13,9 @@ app.post('/contacts', (req, res) => {
     }
 
     const stmt = db.prepare('INSERT INTO contacts (name, email, phone) VALUES (?, ?, ?)');
-    const info = stmt.run(name, email, phone);
+    const result = stmt.run(name, email, phone);
 
-    res.status(201).json({ id: info.lastInsertRowid, name, email, phone});
+    res.status(201).json({ id: result.lastInsertRowid, name, email, phone});
 });
 
 // READ all contacts
