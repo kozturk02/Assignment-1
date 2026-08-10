@@ -8,16 +8,23 @@ const NOT_FOUND = 'Record not found';
 app.use(cors());
 app.use(express.json());
 
+// CREATE
 app.post('/records', (req, res) => {
-  const { customer_name, cover_type,
-    applicant_1_age, applicant_1_hospital_history,
-    applicant_2_age, applicant_2_hospital_history,
-    hospital_cover_level, extras_cover_level,
-    payment_frequency, annual_discount_percent, notes,
+  const {
+    customer_name,
+    cover_type,
+    applicant_1_age,
+    applicant_1_hospital_history,
+    applicant_2_age,
+    applicant_2_hospital_history,
+    hospital_cover_level,
+    extras_cover_level,
+    payment_frequency,
+    annual_discount_percent,
+    notes,
   } = req.body;
 
   try {
-
     const stmt = db.prepare(`
       INSERT INTO records (
         customer_name, cover_type,
