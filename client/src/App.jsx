@@ -17,13 +17,12 @@ const initialForm = {
   notes: '',
 };
 
-
 function App() {
   const [records, setRecords] = useState([]);
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState(null);
 
-   useEffect(() => {
+  useEffect(() => {
     fetch(`${API_URL}/records`)
       .then((res) => res.json())
       .then((data) => setRecords(data))
@@ -69,7 +68,7 @@ function App() {
 
     const res = await fetch(url, {
       method,
-      headers: { 'Content-Type': 'record/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
@@ -82,7 +81,7 @@ function App() {
     const saved = await res.json();
 
     if (editingId) {
-      setRecords(records.map((a) => (a.id === editingId ? saved : a)));
+      setRecords(records.map((r) => (r.id === editingId ? saved : r)));
       setEditingId(null);
     } else {
       setRecords([...records, saved]);
@@ -116,7 +115,7 @@ function App() {
 
   async function handleDelete(id) {
     await fetch(`${API_URL}/records/${id}`, { method: 'DELETE' });
-    setRecords(records.filter((a) => a.id !== id));
+    setRecords(records.filter((r) => r.id !== id));
   }
 
   const isSingle = form.cover_type === 'Single';

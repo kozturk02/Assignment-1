@@ -37,7 +37,6 @@ db.exec(`
 
     notes TEXT,
 
-    -- Applicant 2 fields are required unless cover type is Single
     CHECK (
       cover_type = 'Single'
       OR (applicant_2_age IS NOT NULL AND applicant_2_hospital_history IS NOT NULL)

@@ -3,7 +3,7 @@ const cors = require('cors');
 const db = require('./db');
 const app = express();
 const PORT = 3001;
-const NOT_FOUND = 'Record not found';
+const NOT_FOUND = NOT_FOUND;
 
 app.use(cors());
 app.use(express.json());
@@ -49,11 +49,11 @@ app.post('/records', (req, res) => {
       notes ?? null
     );
 
-    const newApp = db
+    const newRecord = db
       .prepare('SELECT * FROM records WHERE id = ?')
       .get(result.lastInsertRowid);
 
-    res.status(201).json(newApp);
+    res.status(201).json(newRecord);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -61,21 +61,21 @@ app.post('/records', (req, res) => {
 
 // READ all
 app.get('/records', (req, res) => {
-  const apps = db.prepare('SELECT * FROM records').all();
-  res.json(apps);
+  const records = db.prepare('SELECT * FROM records').all();
+  res.json(records);
 });
 
 // READ one
 app.get('/records/:id', (req, res) => {
-  const app_ = db
+  const record = db
     .prepare('SELECT * FROM records WHERE id = ?')
     .get(req.params.id);
 
-  if (!app_) {
+  if (!record) {
     return res.status(404).json({ error: NOT_FOUND });
   }
 
-  res.json(app_);
+  res.json(record);
 });
 
 // UPDATE
