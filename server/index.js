@@ -3,7 +3,7 @@ const cors = require('cors');
 const db = require('./db');
 const app = express();
 const PORT = 3001;
-const NOT_FOUND = NOT_FOUND;
+const NOT_FOUND = 'Record not found';
 
 app.use(cors());
 app.use(express.json());
