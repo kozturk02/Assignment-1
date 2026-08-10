@@ -3,61 +3,137 @@ const cors = require('cors');
 const db = require('./db');
 const app = express();
 const PORT = 3001;
+const NOT_FOUND = 'Record not found';
 
 app.use(cors());
 app.use(express.json());
 
-app.post('/contacts', (req, res) => {
-    const { name, email, phone } = req.body;
+app.post('/records', (req, res) => {
+  const { customer_name, cover_type,
+    applicant_1_age, applicant_1_hospital_history,
+    applicant_2_age, applicant_2_hospital_history,
+    hospital_cover_level, extras_cover_level,
+    payment_frequency, annual_discount_percent, notes,
+  } = req.body;
 
-    if (!name) {
-        return res.status(400).json({ error: 'Name is required' });
-    }
+  try {
 
-    const stmt = db.prepare('INSERT INTO contacts (name, email, phone) VALUES (?, ?, ?)');
-    const result = stmt.run(name, email, phone);
+    const stmt = db.prepare(`
+      INSERT INTO records (
+        customer_name, cover_type,
+        applicant_1_age, applicant_1_hospital_history,
+        applicant_2_age, applicant_2_hospital_history,
+        hospital_cover_level, extras_cover_level,
+        payment_frequency, annual_discount_percent, notes
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
 
-    res.status(201).json({ id: result.lastInsertRowid, name, email, phone});
+    const result = stmt.run(
+      customer_name,
+      cover_type,
+      applicant_1_age,
+      applicant_1_hospital_history,
+      applicant_2_age ?? null,
+      applicant_2_hospital_history ?? null,
+      hospital_cover_level,
+      extras_cover_level,
+      payment_frequency,
+      annual_discount_percent ?? null,
+      notes ?? null
+    );
+
+    const newApp = db
+      .prepare('SELECT * FROM records WHERE id = ?')
+      .get(result.lastInsertRowid);
+
+    res.status(201).json(newApp);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
-// READ all contacts
-app.get('/contacts', (req, res) => {
-    const contacts = db.prepare('SELECT * FROM contacts').all();
-    res.json(contacts);
+// READ all
+app.get('/records', (req, res) => {
+  const apps = db.prepare('SELECT * FROM records').all();
+  res.json(apps);
 });
 
-// READ single contact
-app.get('/contacts/:id', (req, res) => {
-    const contact = db.prepare('SELECT * FROM contacts WHERE id = ?').get(req.params.id);
+// READ one
+app.get('/records/:id', (req, res) => {
+  const app_ = db
+    .prepare('SELECT * FROM records WHERE id = ?')
+    .get(req.params.id);
 
-    if (!contact) {
-        return res.status(404).json({ error: 'Contact not found' });
-    }
+  if (!app_) {
+    return res.status(404).json({ error: NOT_FOUND });
+  }
 
-    res.json(contact);
+  res.json(app_);
 });
 
 // UPDATE
-app.put('/contacts/:id', (req, res) => {
-  const { name, email, phone } = req.body;
+app.put('/records/:id', (req, res) => {
+  const {
+    customer_name,
+    cover_type,
+    applicant_1_age,
+    applicant_1_hospital_history,
+    applicant_2_age,
+    applicant_2_hospital_history,
+    hospital_cover_level,
+    extras_cover_level,
+    payment_frequency,
+    annual_discount_percent,
+    notes,
+  } = req.body;
 
-  const stmt = db.prepare('UPDATE contacts SET name = ?, email = ?, phone = ? WHERE id = ?');
-  const result = stmt.run(name, email, phone, req.params.id);
+  try {
+    const stmt = db.prepare(`
+      UPDATE records SET
+        customer_name = ?, cover_type = ?,
+        applicant_1_age = ?, applicant_1_hospital_history = ?,
+        applicant_2_age = ?, applicant_2_hospital_history = ?,
+        hospital_cover_level = ?, extras_cover_level = ?,
+        payment_frequency = ?, annual_discount_percent = ?, notes = ?
+      WHERE id = ?
+    `);
 
-  if (result.changes === 0) {
-    return res.status(404).json({ error: 'Contact not found' });
+    const result = stmt.run(
+      customer_name,
+      cover_type,
+      applicant_1_age,
+      applicant_1_hospital_history,
+      applicant_2_age ?? null,
+      applicant_2_hospital_history ?? null,
+      hospital_cover_level,
+      extras_cover_level,
+      payment_frequency,
+      annual_discount_percent ?? null,
+      notes ?? null,
+      req.params.id
+    );
+
+    if (result.changes === 0) {
+      return res.status(404).json({ error: NOT_FOUND });
+    }
+
+    const updated = db
+      .prepare('SELECT * FROM records WHERE id = ?')
+      .get(req.params.id);
+
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
-
-  res.json({ id: Number(req.params.id), name, email, phone });
 });
 
 // DELETE
-app.delete('/contacts/:id', (req, res) => {
-  const stmt = db.prepare('DELETE FROM contacts WHERE id = ?');
+app.delete('/records/:id', (req, res) => {
+  const stmt = db.prepare('DELETE FROM records WHERE id = ?');
   const result = stmt.run(req.params.id);
 
   if (result.changes === 0) {
-    return res.status(404).json({ error: 'Contact not found' });
+    return res.status(404).json({ error: NOT_FOUND });
   }
 
   res.status(204).send();

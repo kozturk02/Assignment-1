@@ -3,105 +3,287 @@ import './App.css';
 
 const API_URL = 'http://localhost:3001';
 
+const initialForm = {
+  customer_name: '',
+  cover_type: 'Single',
+  applicant_1_age: '',
+  applicant_1_hospital_history: 'Not sure',
+  applicant_2_age: '',
+  applicant_2_hospital_history: 'Not sure',
+  hospital_cover_level: 'None',
+  extras_cover_level: 'None',
+  payment_frequency: 'Monthly',
+  annual_discount_percent: '',
+  notes: '',
+};
+
+
 function App() {
-  const [contacts, setContacts] = useState([]);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [records, setRecords] = useState([]);
+  const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState(null);
 
-  useEffect(() => {
-    fetch(`${API_URL}/contacts`)
-      .then(response => response.json())
-      .then(data => setContacts(data))
-      .catch(error => console.error('Error fetching contacts:', error));
+   useEffect(() => {
+    fetch(`${API_URL}/records`)
+      .then((res) => res.json())
+      .then((data) => setRecords(data))
+      .catch((err) => console.error('Failed to fetch records:', err));
   }, []);
+
+  function updateField(field, value) {
+    setForm({ ...form, [field]: value });
+  }
+
+  function buildPayload() {
+    const isSingle = form.cover_type === 'Single';
+    const isYearly = form.payment_frequency === 'Yearly';
+
+    return {
+      customer_name: form.customer_name,
+      cover_type: form.cover_type,
+      applicant_1_age: Number(form.applicant_1_age),
+      applicant_1_hospital_history: form.applicant_1_hospital_history,
+      applicant_2_age: isSingle ? null : Number(form.applicant_2_age),
+      applicant_2_hospital_history: isSingle
+        ? null
+        : form.applicant_2_hospital_history,
+      hospital_cover_level: form.hospital_cover_level,
+      extras_cover_level: form.extras_cover_level,
+      payment_frequency: form.payment_frequency,
+      annual_discount_percent:
+        isYearly && form.annual_discount_percent !== ''
+          ? Number(form.annual_discount_percent)
+          : null,
+      notes: form.notes || null,
+    };
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if(!name.trim()) return;
 
-    if(editingId) {
-      const res = await fetch(`${API_URL}/contacts/${editingId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone })
-      });
-      const updatedContact = await res.json();
-      setContacts(
-        contacts.map((c) => c.id === editingId ? updatedContact : c)
-      );
-      setEditingId(null);
+    const payload = buildPayload();
+    const url = editingId
+      ? `${API_URL}/records/${editingId}`
+      : `${API_URL}/records`;
+    const method = editingId ? 'PUT' : 'POST';
 
-    } else {
-      // ADD MODE — send POST to create new contact
-      const res = await fetch(`${API_URL}/contacts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone })
-      });
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'record/json' },
+      body: JSON.stringify(payload),
+    });
 
-      const newContact = await res.json();
-      setContacts([...contacts, newContact]);
+    if (!res.ok) {
+      const err = await res.json();
+      alert(`Error: ${err.error}`);
+      return;
     }
-    
-    setName('');
-    setEmail('');
-    setPhone('');
+
+    const saved = await res.json();
+
+    if (editingId) {
+      setRecords(records.map((a) => (a.id === editingId ? saved : a)));
+      setEditingId(null);
+    } else {
+      setRecords([...records, saved]);
+    }
+
+    setForm(initialForm);
   }
 
-  function handleEdit(contact) {
-    setEditingId(contact.id);
-    setName(contact.name);
-    setEmail(contact.email);
-    setPhone(contact.phone);
+  function handleEditClick(record) {
+    setEditingId(record.id);
+    setForm({
+      customer_name: record.customer_name,
+      cover_type: record.cover_type,
+      applicant_1_age: record.applicant_1_age,
+      applicant_1_hospital_history: record.applicant_1_hospital_history,
+      applicant_2_age: record.applicant_2_age ?? '',
+      applicant_2_hospital_history:
+        record.applicant_2_hospital_history ?? 'Not sure',
+      hospital_cover_level: record.hospital_cover_level,
+      extras_cover_level: record.extras_cover_level,
+      payment_frequency: record.payment_frequency,
+      annual_discount_percent: record.annual_discount_percent ?? '',
+      notes: record.notes ?? '',
+    });
   }
 
   function handleCancelEdit() {
     setEditingId(null);
-    setName('');
-    setEmail('');
-    setPhone('');
+    setForm(initialForm);
   }
 
   async function handleDelete(id) {
-    await fetch(`${API_URL}/contacts/${id}`, { method: 'DELETE' });
-    setContacts(contacts.filter(contact => contact.id !== id));
+    await fetch(`${API_URL}/records/${id}`, { method: 'DELETE' });
+    setRecords(records.filter((a) => a.id !== id));
   }
+
+  const isSingle = form.cover_type === 'Single';
+  const isYearly = form.payment_frequency === 'Yearly';
 
   return (
     <div className="App">
-      <h1>Contacts</h1>
+      <h1>Health Cover Records</h1>
 
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Phone"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-        <button type="submit">{editingId ? 'Update Contact' : 'Add Contact'}</button>
-        {editingId && (<button type="button" onClick={handleCancelEdit}>Cancel</button>)}
+        <label>
+          Customer name
+          <input
+            type="text"
+            required
+            value={form.customer_name}
+            onChange={(e) => updateField('customer_name', e.target.value)}
+          />
+        </label>
+
+        <label>
+          Cover type
+          <select
+            value={form.cover_type}
+            onChange={(e) => updateField('cover_type', e.target.value)}
+          >
+            <option value="Single">Single</option>
+            <option value="Couple">Couple</option>
+            <option value="Family">Family</option>
+          </select>
+        </label>
+
+        <label>
+          Applicant 1 age
+          <input
+            type="number"
+            min="18"
+            max="100"
+            required
+            value={form.applicant_1_age}
+            onChange={(e) => updateField('applicant_1_age', e.target.value)}
+          />
+        </label>
+
+        <label>
+          Applicant 1 hospital cover history
+          <select
+            value={form.applicant_1_hospital_history}
+            onChange={(e) =>
+              updateField('applicant_1_hospital_history', e.target.value)
+            }
+          >
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+            <option value="Not sure">Not sure</option>
+          </select>
+        </label>
+
+        {!isSingle && (
+          <>
+            <label>
+              Applicant 2 age
+              <input
+                type="number"
+                min="18"
+                max="100"
+                required
+                value={form.applicant_2_age}
+                onChange={(e) => updateField('applicant_2_age', e.target.value)}
+              />
+            </label>
+
+            <label>
+              Applicant 2 hospital cover history
+              <select
+                value={form.applicant_2_hospital_history}
+                onChange={(e) =>
+                  updateField('applicant_2_hospital_history', e.target.value)
+                }
+              >
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+                <option value="Not sure">Not sure</option>
+              </select>
+            </label>
+          </>
+        )}
+
+        <label>
+          Hospital cover level
+          <select
+            value={form.hospital_cover_level}
+            onChange={(e) => updateField('hospital_cover_level', e.target.value)}
+          >
+            <option value="None">None</option>
+            <option value="Basic">Basic</option>
+            <option value="Bronze">Bronze</option>
+            <option value="Silver">Silver</option>
+            <option value="Gold">Gold</option>
+          </select>
+        </label>
+
+        <label>
+          Extras cover level
+          <select
+            value={form.extras_cover_level}
+            onChange={(e) => updateField('extras_cover_level', e.target.value)}
+          >
+            <option value="None">None</option>
+            <option value="Basic">Basic</option>
+            <option value="Standard">Standard</option>
+            <option value="Premium">Premium</option>
+          </select>
+        </label>
+
+        <label>
+          Payment frequency
+          <select
+            value={form.payment_frequency}
+            onChange={(e) => updateField('payment_frequency', e.target.value)}
+          >
+            <option value="Monthly">Monthly</option>
+            <option value="Yearly">Yearly</option>
+          </select>
+        </label>
+
+        {isYearly && (
+          <label>
+            Annual-payment discount %
+            <input
+              type="number"
+              min="0"
+              max="10"
+              value={form.annual_discount_percent}
+              onChange={(e) =>
+                updateField('annual_discount_percent', e.target.value)
+              }
+            />
+          </label>
+        )}
+
+        <label>
+          Notes
+          <textarea
+            value={form.notes}
+            onChange={(e) => updateField('notes', e.target.value)}
+          />
+        </label>
+
+        <button type="submit">
+          {editingId ? 'Save Changes' : 'Add Record'}
+        </button>
+        {editingId && (
+          <button type="button" onClick={handleCancelEdit}>
+            Cancel
+          </button>
+        )}
       </form>
 
       <ul>
-        {contacts.map((contact) => (
-          <li key={contact.id}>
-            {contact.name} — {contact.email} — {contact.phone}
-            <button onClick={() => handleEdit(contact)}>Edit</button>
-            <button onClick={() => handleDelete(contact.id)}>Delete</button>
+        {records.map((record) => (
+          <li key={record.id}>
+            {record.customer_name} — {record.cover_type} —{' '}
+            {record.hospital_cover_level}/{record.extras_cover_level} —{' '}
+            {record.payment_frequency}
+            <button onClick={() => handleEditClick(record)}>Edit</button>
+            <button onClick={() => handleDelete(record.id)}>Delete</button>
           </li>
         ))}
       </ul>
