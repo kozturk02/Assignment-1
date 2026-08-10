@@ -8,6 +8,7 @@ function App() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     fetch(`${API_URL}/contacts`)
@@ -18,18 +19,46 @@ function App() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
     if(!name.trim()) return;
 
-    const res = await fetch(`${API_URL}/contacts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, phone })
-    });
+    if(editingId) {
+      const res = await fetch(`${API_URL}/contacts/${editingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, phone })
+      });
+      const updatedContact = await res.json();
+      setContacts(
+        contacts.map((c) => c.id === editingId ? updatedContact : c)
+      );
+      setEditingId(null);
 
-    const newContact = await res.json();
-    setContacts([...contacts, newContact]);
+    } else {
+      // ADD MODE — send POST to create new contact
+      const res = await fetch(`${API_URL}/contacts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, phone })
+      });
+
+      const newContact = await res.json();
+      setContacts([...contacts, newContact]);
+    }
     
+    setName('');
+    setEmail('');
+    setPhone('');
+  }
+
+  function handleEdit(contact) {
+    setEditingId(contact.id);
+    setName(contact.name);
+    setEmail(contact.email);
+    setPhone(contact.phone);
+  }
+
+  function handleCancelEdit() {
+    setEditingId(null);
     setName('');
     setEmail('');
     setPhone('');
@@ -63,13 +92,15 @@ function App() {
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
         />
-        <button type="submit">Add Contact</button>
+        <button type="submit">{editingId ? 'Update Contact' : 'Add Contact'}</button>
+        {editingId && (<button type="button" onClick={handleCancelEdit}>Cancel</button>)}
       </form>
 
       <ul>
         {contacts.map((contact) => (
           <li key={contact.id}>
             {contact.name} — {contact.email} — {contact.phone}
+            <button onClick={() => handleEdit(contact)}>Edit</button>
             <button onClick={() => handleDelete(contact.id)}>Delete</button>
           </li>
         ))}
