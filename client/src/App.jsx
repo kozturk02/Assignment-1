@@ -21,7 +21,7 @@ const initialForm = {
 function formatDate(sqliteTimestamp) {
   if (!sqliteTimestamp) return '';
   const date = new Date(sqliteTimestamp.replace(' ', 'T') + 'Z');
-  return date.toLocaleDateString('en-AU', {
+  return date.toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
