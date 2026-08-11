@@ -17,17 +17,13 @@ const initialForm = {
   notes: '',
 };
 
-// SQLite stores UTC time with no timezone marker — add "Z" so JS parses it correctly
 function formatDate(sqliteTimestamp) {
   if (!sqliteTimestamp) return '';
   const date = new Date(sqliteTimestamp.replace(' ', 'T') + 'Z');
-  return date.toLocaleString('en-US', {
+  return date.toLocaleDateString('en-AU', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
   });
 }
 
@@ -37,6 +33,8 @@ function App() {
   const [editingId, setEditingId] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const RECORDS_PER_PAGE = 6;
 
   useEffect(() => {
     fetch(`${API_URL}/records`)
@@ -146,31 +144,14 @@ function App() {
     r.customer_name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const totalPages = Math.max(1, Math.ceil(filteredRecords.length / RECORDS_PER_PAGE));
+  const startIndex = (currentPage - 1) * RECORDS_PER_PAGE;
+  const paginatedRecords = filteredRecords.slice(startIndex, startIndex + RECORDS_PER_PAGE);
+
   return (
     <div className="App">
-      <nav className="navbar">
-        <div className="brand">
-          <svg className="brand-icon" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 2L4 5v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V5l-8-3z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span>
-            HealthCover<span className="brand-accent">Sim</span>
-          </span>
-        </div>
-        <div className="nav-links">
-          <a className="nav-link active" href="#">Records</a>
-          <a className="nav-link" href="#">About</a>
-        </div>
-      </nav>
-
       <header className="page-header">
         <h1>Health Cover Records</h1>
-        <p>Create and manage private health insurance quotes.</p>
       </header>
 
       <div className="layout">
@@ -352,12 +333,12 @@ function App() {
               type="text"
               placeholder="Search records..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
             />
           </div>
 
           <div className="records-list">
-            {filteredRecords.map((record) => (
+            {paginatedRecords.map((record) => (
               <div key={record.id} className="record-card">
                 <div className="record-row" onClick={() => toggleExpand(record.id)}>
                   <div className="record-summary">
@@ -411,10 +392,32 @@ function App() {
               </div>
             ))}
 
-            {filteredRecords.length === 0 && (
-              <p className="no-results">No records match your search.</p>
-            )}
-          </div>
+{filteredRecords.length === 0 && (
+  <p className="no-results">No records match your search.</p>
+)}
+</div>
+
+{filteredRecords.length > 0 && (
+  <div className="pagination">
+    <button
+      className="btn-page"
+      disabled={currentPage === 1}
+      onClick={() => setCurrentPage((p) => p - 1)}
+    >
+      Prev
+    </button>
+    <span className="page-indicator">
+      Page {currentPage} of {totalPages}
+    </span>
+    <button
+      className="btn-page"
+      disabled={currentPage === totalPages}
+      onClick={() => setCurrentPage((p) => p + 1)}
+    >
+      Next
+    </button>
+  </div>
+)}
         </div>
       </div>
     </div>

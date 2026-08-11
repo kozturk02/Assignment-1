@@ -15,52 +15,6 @@ body {
   padding: 0 24px 40px;
 }
 
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 0;
-  border-bottom: 1px solid #e5e7eb;
-  margin-bottom: 28px;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 19px;
-  font-weight: 700;
-  color: #111827;
-}
-
-.brand-icon {
-  width: 22px;
-  height: 22px;
-  color: #2563eb;
-}
-
-.brand-accent {
-  color: #2563eb;
-}
-
-.nav-links {
-  display: flex;
-  gap: 24px;
-}
-
-.nav-link {
-  text-decoration: none;
-  color: #6b7280;
-  font-weight: 500;
-  font-size: 14px;
-  padding-bottom: 4px;
-}
-
-.nav-link.active {
-  color: #2563eb;
-  border-bottom: 2px solid #2563eb;
-}
-
 .page-header {
   margin-bottom: 24px;
 }
@@ -90,7 +44,7 @@ body {
 }
 
 .form-panel {
-  flex: 0 0 520px;
+  flex: 0 0 440px;
   padding: 24px;
 }
 
@@ -228,7 +182,6 @@ body {
 }
 
 .records-list {
-  overflow-y: auto;
   border-top: 1px solid #f0f0f0;
 }
 
@@ -312,4 +265,38 @@ body {
   color: #9ca3af;
   padding: 24px 0;
   font-size: 14px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 4px;
+}
+
+.btn-page {
+  background: white;
+  border: 1px solid #d1d5db;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.btn-page:hover:not(:disabled) {
+  background: #f9fafb;
+}
+
+.btn-page:disabled {
+  color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  font-size: 13px;
+  color: #6b7280;
 }
