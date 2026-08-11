@@ -3,47 +3,47 @@ const cors = require('cors');
 const db = require('./db');
 const app = express();
 const PORT = 3001;
-const NOT_FOUND = 'Record not found';
+const errorMessages = require('./errorMsgConfig');
 
 function validateRecord(data) {
   const errors = [];
 
   if (!data.customer_name || !data.customer_name.trim()) {
-    errors.push('Customer name is required');
+    errors.push(errorMessages.CUSTOMER_NAME_REQUIRED);
   }
 
   if (!['Single', 'Couple', 'Family'].includes(data.cover_type)) {
-    errors.push('Cover type must be Single, Couple, or Family');
+    errors.push(errorMessages.COVER_TYPE_INVALID);
   }
 
   if (typeof data.applicant_1_age !== 'number' || data.applicant_1_age < 18 || data.applicant_1_age > 100) {
-    errors.push('Applicant 1 age must be between 18 and 100');
+    errors.push(errorMessages.APPLICANT_1_AGE_INVALID);
   }
 
   if (!['Yes', 'No', 'Not sure'].includes(data.applicant_1_hospital_history)) {
-    errors.push('Applicant 1 hospital cover history must be Yes, No, or Not sure');
+    errors.push(errorMessages.APPLICANT_1_HISTORY_INVALID);
   }
 
   const needsApplicant2 = data.cover_type === 'Couple' || data.cover_type === 'Family';
   if (needsApplicant2) {
     if (typeof data.applicant_2_age !== 'number' || data.applicant_2_age < 18 || data.applicant_2_age > 100) {
-      errors.push('Applicant 2 age must be between 18 and 100 for Couple/Family cover');
+      errors.push(errorMessages.APPLICANT_2_AGE_INVALID);
     }
     if (!['Yes', 'No', 'Not sure'].includes(data.applicant_2_hospital_history)) {
-      errors.push('Applicant 2 hospital cover history must be Yes, No, or Not sure for Couple/Family cover');
+      errors.push(errorMessages.APPLICANT_2_HISTORY_INVALID);
     }
   }
 
   if (!['None', 'Basic', 'Bronze', 'Silver', 'Gold'].includes(data.hospital_cover_level)) {
-    errors.push('Hospital cover level must be None, Basic, Bronze, Silver, or Gold');
+    errors.push(errorMessages.HOSPITAL_COVER_LEVEL_INVALID);
   }
 
   if (!['None', 'Basic', 'Standard', 'Premium'].includes(data.extras_cover_level)) {
-    errors.push('Extras cover level must be None, Basic, Standard, or Premium');
+    errors.push(errorMessages.EXTRAS_COVER_LEVEL_INVALID);
   }
 
   if (!['Monthly', 'Yearly'].includes(data.payment_frequency)) {
-    errors.push('Payment frequency must be Monthly or Yearly');
+    errors.push(errorMessages.PAYMENT_FREQUENCY_INVALID);
   }
 
   if (
@@ -51,7 +51,7 @@ function validateRecord(data) {
     data.annual_discount_percent != null &&
     (data.annual_discount_percent < 0 || data.annual_discount_percent > 10)
   ) {
-    errors.push('Annual discount percent must be between 0 and 10');
+    errors.push(errorMessages.ANNUAL_DISCOUNT_INVALID);
   }
 
   return errors;
@@ -123,7 +123,7 @@ app.get('/records/:id', (req, res) => {
     .get(req.params.id);
 
   if (!record) {
-    return res.status(404).json({ error: NOT_FOUND });
+    return res.status(404).json({ error: errorMessages.NOT_FOUND });
   }
 
   res.json(record);
@@ -172,7 +172,7 @@ app.put('/records/:id', (req, res) => {
     );
 
     if (result.changes === 0) {
-      return res.status(404).json({ error: NOT_FOUND });
+      return res.status(404).json({ error: errorMessages.NOT_FOUND });
     }
 
     const updated = db
@@ -191,7 +191,7 @@ app.delete('/records/:id', (req, res) => {
   const result = stmt.run(req.params.id);
 
   if (result.changes === 0) {
-    return res.status(404).json({ error: NOT_FOUND });
+    return res.status(404).json({ error: errorMessages.NOT_FOUND });
   }
 
   res.status(204).send();
