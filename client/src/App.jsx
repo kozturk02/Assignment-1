@@ -17,10 +17,26 @@ const initialForm = {
   notes: '',
 };
 
+// SQLite stores UTC time with no timezone marker — add "Z" so JS parses it correctly
+function formatDate(sqliteTimestamp) {
+  if (!sqliteTimestamp) return '';
+  const date = new Date(sqliteTimestamp.replace(' ', 'T') + 'Z');
+  return date.toLocaleString('en-US', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
 function App() {
   const [records, setRecords] = useState([]);
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState(null);
+  const [expandedId, setExpandedId] = useState(null);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetch(`${API_URL}/records`)
@@ -31,6 +47,10 @@ function App() {
 
   function updateField(field, value) {
     setForm({ ...form, [field]: value });
+  }
+
+  function toggleExpand(id) {
+    setExpandedId(expandedId === id ? null : id);
   }
 
   function buildPayload() {
@@ -120,24 +140,52 @@ function App() {
 
   const isSingle = form.cover_type === 'Single';
   const isYearly = form.payment_frequency === 'Yearly';
+  const needsApplicant2 = !isSingle;
 
-  const [expandedId, setExpandedId] = useState(null);
-
-  function toggleExpand(id) {
-    setExpandedId(expandedId === id ? null : id);
-  }
+  const filteredRecords = records.filter((r) =>
+    r.customer_name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="App">
-      <h1>Health Cover Records</h1>
+      <nav className="navbar">
+        <div className="brand">
+          <svg className="brand-icon" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 2L4 5v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V5l-8-3z"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span>
+            HealthCover<span className="brand-accent">Sim</span>
+          </span>
+        </div>
+        <div className="nav-links">
+          <a className="nav-link active" href="#">Records</a>
+          <a className="nav-link" href="#">About</a>
+        </div>
+      </nav>
+
+      <header className="page-header">
+        <h1>Health Cover Records</h1>
+        <p>Create and manage private health insurance quotes.</p>
+      </header>
 
       <div className="layout">
         <div className="form-panel">
-          <form onSubmit={handleSubmit}>
-            <label>
+          <div className="panel-header">
+            <h2>Create Quote</h2>
+            <p>Enter the details below to generate a health cover quote.</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="quote-form">
+            <label className="full-width">
               Customer name
               <input
                 type="text"
+                placeholder="e.g. John Smith"
                 required
                 value={form.customer_name}
                 onChange={(e) => updateField('customer_name', e.target.value)}
@@ -162,6 +210,7 @@ function App() {
                 type="number"
                 min="18"
                 max="100"
+                placeholder="18–100"
                 required
                 value={form.applicant_1_age}
                 onChange={(e) => updateField('applicant_1_age', e.target.value)}
@@ -182,35 +231,40 @@ function App() {
               </select>
             </label>
 
-            {!isSingle && (
-              <>
-                <label>
-                  Applicant 2 age
-                  <input
-                    type="number"
-                    min="18"
-                    max="100"
-                    required
-                    value={form.applicant_2_age}
-                    onChange={(e) => updateField('applicant_2_age', e.target.value)}
-                  />
-                </label>
+            <label>
+              Applicant 2 age
+              <input
+                type="number"
+                min="18"
+                max="100"
+                placeholder="Required for Couple or Family"
+                disabled={isSingle}
+                required={needsApplicant2}
+                value={form.applicant_2_age}
+                onChange={(e) => updateField('applicant_2_age', e.target.value)}
+              />
+            </label>
 
-                <label>
-                  Applicant 2 hospital cover history
-                  <select
-                    value={form.applicant_2_hospital_history}
-                    onChange={(e) =>
-                      updateField('applicant_2_hospital_history', e.target.value)
-                    }
-                  >
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                    <option value="Not sure">Not sure</option>
-                  </select>
-                </label>
-              </>
-            )}
+            <label>
+              Applicant 2 hospital cover history
+              <select
+                disabled={isSingle}
+                required={needsApplicant2}
+                value={isSingle ? '' : form.applicant_2_hospital_history}
+                onChange={(e) =>
+                  updateField('applicant_2_hospital_history', e.target.value)
+                }
+              >
+                {isSingle && (
+                  <option value="" disabled>
+                    Required for Couple or Family
+                  </option>
+                )}
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+                <option value="Not sure">Not sure</option>
+              </select>
+            </label>
 
             <label>
               Hospital cover level
@@ -250,52 +304,67 @@ function App() {
               </select>
             </label>
 
-            {isYearly && (
-              <label>
-                Annual-payment discount %
-                <input
-                  type="number"
-                  min="0"
-                  max="10"
-                  value={form.annual_discount_percent}
-                  onChange={(e) =>
-                    updateField('annual_discount_percent', e.target.value)
-                  }
-                />
-              </label>
-            )}
-
             <label>
-              Notes
+              Annual-payment discount %
+              <input
+                type="number"
+                min="0"
+                max="10"
+                placeholder="Only used when paying Yearly"
+                disabled={!isYearly}
+                value={form.annual_discount_percent}
+                onChange={(e) =>
+                  updateField('annual_discount_percent', e.target.value)
+                }
+              />
+            </label>
+
+            <label className="full-width">
+              Notes (optional)
               <textarea
+                placeholder="Add any additional notes..."
                 value={form.notes}
                 onChange={(e) => updateField('notes', e.target.value)}
               />
             </label>
 
-            <div className="form-actions">
+            <div className="form-actions full-width">
               {editingId && (
                 <button type="button" className="btn-cancel" onClick={handleCancelEdit}>
                   Cancel
                 </button>
               )}
               <button type="submit" className="btn-primary">
-                {editingId ? 'Update Quote' : 'Create Quote'}
+                {editingId ? 'Update Quote' : '+  Create Quote'}
               </button>
             </div>
           </form>
         </div>
 
         <div className="records-panel">
+          <div className="records-header">
+            <h2>Your Records</h2>
+            <span className="quote-count">{records.length} quotes</span>
+          </div>
+
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="Search records..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
           <div className="records-list">
-            {records.map((record) => (
+            {filteredRecords.map((record) => (
               <div key={record.id} className="record-card">
-                <div
-                  className="record-row"
-                  onClick={() => toggleExpand(record.id)}
-                >
+                <div className="record-row" onClick={() => toggleExpand(record.id)}>
                   <div className="record-summary">
-                    <strong>{record.customer_name}</strong> — {record.cover_type}
+                    <strong>{record.customer_name}</strong>
+                    <span className="record-meta">
+                      Started {formatDate(record.created_at)}
+                    </span>
                   </div>
                   <div className="record-actions">
                     <button
@@ -321,6 +390,7 @@ function App() {
 
                 {expandedId === record.id && (
                   <div className="record-details">
+                    <p><strong>Cover type:</strong> {record.cover_type}</p>
                     <p><strong>Applicant 1 age:</strong> {record.applicant_1_age}</p>
                     <p><strong>Applicant 1 hospital history:</strong> {record.applicant_1_hospital_history}</p>
                     {record.applicant_2_age != null && (
@@ -340,6 +410,10 @@ function App() {
                 )}
               </div>
             ))}
+
+            {filteredRecords.length === 0 && (
+              <p className="no-results">No records match your search.</p>
+            )}
           </div>
         </div>
       </div>
