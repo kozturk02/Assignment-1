@@ -27,6 +27,22 @@ function formatDate(sqliteTimestamp) {
   });
 }
 
+function getPageNumbers(current, total) {
+  if (total <= 5) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  if (current <= 3) {
+    return [1, 2, 3, '...', total];
+  }
+
+  if (current >= total - 2) {
+    return [1, '...', total - 2, total - 1, total];
+  }
+
+  return [1, '...', current, '...', total];
+}
+
 function App() {
   const [records, setRecords] = useState([]);
   const [form, setForm] = useState(initialForm);
@@ -226,26 +242,36 @@ function App() {
               />
             </label>
 
-            <label>
-              Applicant 2 hospital cover history
-              <select
-                disabled={isSingle}
-                required={needsApplicant2}
-                value={isSingle ? '' : form.applicant_2_hospital_history}
-                onChange={(e) =>
-                  updateField('applicant_2_hospital_history', e.target.value)
-                }
-              >
-                {isSingle && (
-                  <option value="" disabled>
-                    Required for Couple or Family
-                  </option>
-                )}
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-                <option value="Not sure">Not sure</option>
-              </select>
-            </label>
+            {needsApplicant2 && (
+  <>
+    <label>
+      Applicant 2 age
+      <input
+        type="number"
+        min="18"
+        max="100"
+        required
+        value={form.applicant_2_age}
+        onChange={(e) => updateField('applicant_2_age', e.target.value)}
+      />
+    </label>
+
+    <label>
+      Applicant 2 hospital cover history
+      <select
+        required
+        value={form.applicant_2_hospital_history}
+        onChange={(e) =>
+          updateField('applicant_2_hospital_history', e.target.value)
+        }
+      >
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+        <option value="Not sure">Not sure</option>
+      </select>
+    </label>
+  </>
+)}
 
             <label>
               Hospital cover level
@@ -285,20 +311,20 @@ function App() {
               </select>
             </label>
 
-            <label>
-              Annual-payment discount %
-              <input
-                type="number"
-                min="0"
-                max="10"
-                placeholder="Only used when paying Yearly"
-                disabled={!isYearly}
-                value={form.annual_discount_percent}
-                onChange={(e) =>
-                  updateField('annual_discount_percent', e.target.value)
-                }
-              />
-            </label>
+{isYearly && (
+  <label>
+    Annual-payment discount %
+    <input
+      type="number"
+      min="0"
+      max="10"
+      value={form.annual_discount_percent}
+      onChange={(e) =>
+        updateField('annual_discount_percent', e.target.value)
+      }
+    />
+  </label>
+)}
 
             <label className="full-width">
               Notes (optional)
@@ -400,21 +426,35 @@ function App() {
 {filteredRecords.length > 0 && (
   <div className="pagination">
     <button
-      className="btn-page"
+      className="btn-page btn-arrow"
       disabled={currentPage === 1}
       onClick={() => setCurrentPage((p) => p - 1)}
     >
-      Prev
+      ‹
     </button>
-    <span className="page-indicator">
-      Page {currentPage} of {totalPages}
-    </span>
+
+    {getPageNumbers(currentPage, totalPages).map((page, index) =>
+      page === '...' ? (
+        <span key={`ellipsis-${index}`} className="page-ellipsis">
+          ...
+        </span>
+      ) : (
+        <button
+          key={page}
+          className={`btn-page ${page === currentPage ? 'btn-page-active' : ''}`}
+          onClick={() => setCurrentPage(page)}
+        >
+          {page}
+        </button>
+      )
+    )}
+
     <button
-      className="btn-page"
+      className="btn-page btn-arrow"
       disabled={currentPage === totalPages}
       onClick={() => setCurrentPage((p) => p + 1)}
     >
-      Next
+      ›
     </button>
   </div>
 )}

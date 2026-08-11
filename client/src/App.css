@@ -280,11 +280,13 @@ body {
 .btn-page {
   background: white;
   border: 1px solid #d1d5db;
-  padding: 6px 14px;
+  min-width: 34px;
+  padding: 6px 10px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
+  color: #374151;
 }
 
 .btn-page:hover:not(:disabled) {
@@ -296,7 +298,23 @@ body {
   cursor: not-allowed;
 }
 
-.page-indicator {
+.btn-page-active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.btn-page-active:hover {
+  background: #2563eb;
+}
+
+.btn-arrow {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.page-ellipsis {
+  padding: 0 4px;
+  color: #9ca3af;
   font-size: 13px;
-  color: #6b7280;
 }
