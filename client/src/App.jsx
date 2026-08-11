@@ -121,6 +121,12 @@ function App() {
   const isSingle = form.cover_type === 'Single';
   const isYearly = form.payment_frequency === 'Yearly';
 
+  const [expandedId, setExpandedId] = useState(null);
+
+  function toggleExpand(id) {
+    setExpandedId(expandedId === id ? null : id);
+  }
+
   return (
     <div className="App">
       <h1>Health Cover Records</h1>
