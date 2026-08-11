@@ -49,7 +49,6 @@ function App() {
   const [form, setForm] = useState(initialForm);
   const [quoteModalData, setQuoteModalData] = useState(null);
   const [editingId, setEditingId] = useState(null);
-  const [expandedId, setExpandedId] = useState(null);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const RECORDS_PER_PAGE = 6;
@@ -203,79 +202,7 @@ function App() {
               </select>
             </label>
 
-            <label>
-              Applicant 1 age
-              <input
-                type="number"
-                min="18"
-                max="100"
-                placeholder="18–100"
-                required
-                value={form.applicant_1_age}
-                onChange={(e) => updateField('applicant_1_age', e.target.value)}
-              />
-            </label>
-
-            <label>
-              Applicant 1 hospital cover history
-              <select
-                value={form.applicant_1_hospital_history}
-                onChange={(e) =>
-                  updateField('applicant_1_hospital_history', e.target.value)
-                }
-              >
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-                <option value="Not sure">Not sure</option>
-              </select>
-            </label>
-
-            <label>
-              Applicant 2 age
-              <input
-                type="number"
-                min="18"
-                max="100"
-                placeholder="Required for Couple or Family"
-                disabled={isSingle}
-                required={needsApplicant2}
-                value={form.applicant_2_age}
-                onChange={(e) => updateField('applicant_2_age', e.target.value)}
-              />
-            </label>
-
-            {needsApplicant2 && (
-  <>
-    <label>
-      Applicant 2 age
-      <input
-        type="number"
-        min="18"
-        max="100"
-        required
-        value={form.applicant_2_age}
-        onChange={(e) => updateField('applicant_2_age', e.target.value)}
-      />
-    </label>
-
-    <label>
-      Applicant 2 hospital cover history
-      <select
-        required
-        value={form.applicant_2_hospital_history}
-        onChange={(e) =>
-          updateField('applicant_2_hospital_history', e.target.value)
-        }
-      >
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-        <option value="Not sure">Not sure</option>
-      </select>
-    </label>
-  </>
-)}
-
-            <label>
+                        <label>
               Hospital cover level
               <select
                 value={form.hospital_cover_level}
@@ -312,6 +239,64 @@ function App() {
                 <option value="Yearly">Yearly</option>
               </select>
             </label>
+
+            <label>
+              Applicant 1 age
+              <input
+                type="number"
+                min="18"
+                max="100"
+                placeholder="18–100"
+                required
+                value={form.applicant_1_age}
+                onChange={(e) => updateField('applicant_1_age', e.target.value)}
+              />
+            </label>
+
+            <label>
+              Applicant 1 hospital cover history
+              <select
+                value={form.applicant_1_hospital_history}
+                onChange={(e) =>
+                  updateField('applicant_1_hospital_history', e.target.value)
+                }
+              >
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+                <option value="Not sure">Not sure</option>
+              </select>
+            </label>
+
+            {needsApplicant2 && (
+  <>
+    <label>
+      Applicant 2 age
+      <input
+        type="number"
+        min="18"
+        max="100"
+        required
+        value={form.applicant_2_age}
+        onChange={(e) => updateField('applicant_2_age', e.target.value)}
+      />
+    </label>
+
+    <label>
+      Applicant 2 hospital cover history
+      <select
+        required
+        value={form.applicant_2_hospital_history}
+        onChange={(e) =>
+          updateField('applicant_2_hospital_history', e.target.value)
+        }
+      >
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+        <option value="Not sure">Not sure</option>
+      </select>
+    </label>
+  </>
+)}
 
 {isYearly && (
   <label>
@@ -375,23 +360,17 @@ function App() {
           <div className="records-list">
             {paginatedRecords.map((record) => (
               <div key={record.id} className="record-card">
-                <div className="record-row" onClick={() => toggleExpand(record.id)}>
+                <div className="record-row" onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditClick(record);
+                      }}>
                   <div className="record-summary">
                     <strong>{record.customer_name}</strong>
                     <span className="record-meta">
-                      Started {formatDate(record.created_at)}
+                      {formatDate(record.created_at)}
                     </span>
                   </div>
                   <div className="record-actions">
-                    <button
-                      className="btn-edit"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditClick(record);
-                      }}
-                    >
-                      Edit
-                    </button>
                     <button
                       className="btn-delete"
                       onClick={(e) => {
@@ -403,34 +382,6 @@ function App() {
                     </button>
                   </div>
                 </div>
-
-                {expandedId === record.id && (
-                  <div className="record-details">
-                    <p><strong>Cover type:</strong> {record.cover_type}</p>
-                    <p><strong>Applicant 1 age:</strong> {record.applicant_1_age}</p>
-                    <p><strong>Applicant 1 hospital history:</strong> {record.applicant_1_hospital_history}</p>
-                    {record.applicant_2_age != null && (
-                      <>
-                        <p><strong>Applicant 2 age:</strong> {record.applicant_2_age}</p>
-                        <p><strong>Applicant 2 hospital history:</strong> {record.applicant_2_hospital_history}</p>
-                      </>
-                    )}
-                    <p><strong>Hospital cover:</strong> {record.hospital_cover_level}</p>
-                    <p><strong>Extras cover:</strong> {record.extras_cover_level}</p>
-                    <p><strong>Payment frequency:</strong> {record.payment_frequency}</p>
-                    {record.annual_discount_percent != null && (
-                      <p><strong>Annual discount:</strong> {record.annual_discount_percent}%</p>
-                    )}
-  {record.notes && <p><strong>Notes:</strong> {record.notes}</p>}
-                    <button
-                      type="button"
-                      className="btn-view-quote"
-                      onClick={() => setQuoteModalData(record)}
-                    >
-                      View Quote
-                    </button>
-                  </div>
-                )}
               </div>
             ))}
 
