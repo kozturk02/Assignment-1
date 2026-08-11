@@ -30,9 +30,6 @@ function QuoteModal({ record, onClose }) {
           <div className="quote-hero">
             <div className="quote-hero-label">{headerLabel}</div>
             <div className="quote-hero-amount">{formatMoney(quote.finalTotal)}</div>
-            <div className="quote-hero-sub">
-              {record.customer_name || 'Unnamed customer'} · Payment frequency: {record.payment_frequency}
-            </div>
           </div>
 
           <div className="quote-lines">
@@ -89,39 +86,10 @@ function QuoteModal({ record, onClose }) {
               </>
             )}
           </div>
-
-          <div className="quote-box quote-box-warning">
-            <div className="quote-box-title">⚠ Warnings</div>
-            {quote.warnings.length === 0 ? (
-              <p>No warning messages for this quote.</p>
-            ) : (
-              quote.warnings.map((w, i) => <p key={i}>{w}</p>)
-            )}
-          </div>
-
           <div className="quote-box quote-box-info">
             <div className="quote-box-title">ⓘ LHC required statement</div>
             <p>{LHC_STATEMENT}</p>
           </div>
-
-          <div className="quote-box quote-box-info">
-            <div className="quote-box-title">ⓘ How this quote was calculated</div>
-            <p>
-              This estimate adds the hospital premium and extras premium for{' '}
-              {quote.isSingle ? 'the applicant' : 'both adults'}, applying each
-              applicant's LHC loading to hospital cover only.
-              {quote.familyFee > 0 && ' The family upgrade fee is added once.'}{' '}
-              {quote.isYearly
-                ? 'Because this quote is paid yearly, the annual discount is then applied to the yearly premium.'
-                : 'Because this quote is paid monthly, no annual discount is applied.'}
-            </p>
-          </div>
-
-          <p className="quote-footnote">
-            Note: Monthly payment shows the monthly premium and yearly premium
-            before discount. Yearly payment shows the monthly premium, yearly
-            premium before discount, and yearly premium after the annual discount.
-          </p>
         </div>
       </div>
     </div>
