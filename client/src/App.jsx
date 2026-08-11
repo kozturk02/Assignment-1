@@ -16,13 +16,12 @@ const initialForm = {
   payment_frequency: 'Monthly',
   annual_discount_percent: '',
   notes: '',
-  created_at: null,
 };
 
 function formatDate(sqliteTimestamp) {
   if (!sqliteTimestamp) return '';
   const date = new Date(sqliteTimestamp.replace(' ', 'T') + 'Z');
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString('en-AU', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -90,7 +89,6 @@ function App() {
           ? Number(form.annual_discount_percent)
           : null,
       notes: form.notes || null,
-    created_at: form.created_at || null,
     };
   }
 
@@ -142,7 +140,6 @@ function App() {
       payment_frequency: record.payment_frequency,
       annual_discount_percent: record.annual_discount_percent ?? '',
       notes: record.notes ?? '',
-    created_at: record.created_at,
     });
   }
 

@@ -67,7 +67,7 @@ app.post('/records', (req, res) => {
     applicant1_age, applicant1_cover_history,
     applicant2_age, applicant2_cover_history,
     hospital_cover, extras_cover, payment_frequency,
-    annual_discount, notes, created_at 
+    annual_discount, notes
   } = req.body;
 
   const errors = validateRecord(req.body);
@@ -82,8 +82,8 @@ app.post('/records', (req, res) => {
         applicant_1_age, applicant_1_hospital_history,
         applicant_2_age, applicant_2_hospital_history,
         hospital_cover_level, extras_cover_level,
-        payment_frequency, annual_discount_percent, notes, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        payment_frequency, annual_discount_percent, notes
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
@@ -98,7 +98,6 @@ app.post('/records', (req, res) => {
       payment_frequency,
       annual_discount_percent ?? null,
       notes ?? null,
-      created_at ?? null
     );
 
     const newRecord = db
@@ -144,7 +143,6 @@ app.put('/records/:id', (req, res) => {
     payment_frequency,
     annual_discount_percent,
     notes,
-    created_at,
   } = req.body;
 
   try {
@@ -154,9 +152,7 @@ app.put('/records/:id', (req, res) => {
         applicant_1_age = ?, applicant_1_hospital_history = ?,
         applicant_2_age = ?, applicant_2_hospital_history = ?,
         hospital_cover_level = ?, extras_cover_level = ?,
-        payment_frequency = ?, annual_discount_percent = ?, notes = ?, created_at = ?
-      WHERE id = ?
-    `);
+        payment_frequency = ?, annual_discount_percent = ?, notes = ? WHERE id = ?`);
 
     const result = stmt.run(
       customer_name,
@@ -170,7 +166,6 @@ app.put('/records/:id', (req, res) => {
       payment_frequency,
       annual_discount_percent ?? null,
       notes ?? null,
-      created_at ?? null,
       req.params.id
     );
 
