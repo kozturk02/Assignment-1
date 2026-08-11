@@ -125,75 +125,49 @@ function App() {
     <div className="App">
       <h1>Health Cover Records</h1>
 
-      <form onSubmit={handleSubmit}>
-        <label>
-          Customer name
-          <input
-            type="text"
-            required
-            value={form.customer_name}
-            onChange={(e) => updateField('customer_name', e.target.value)}
-          />
-        </label>
-
-        <label>
-          Cover type
-          <select
-            value={form.cover_type}
-            onChange={(e) => updateField('cover_type', e.target.value)}
-          >
-            <option value="Single">Single</option>
-            <option value="Couple">Couple</option>
-            <option value="Family">Family</option>
-          </select>
-        </label>
-
-        <label>
-          Applicant 1 age
-          <input
-            type="number"
-            min="18"
-            max="100"
-            required
-            value={form.applicant_1_age}
-            onChange={(e) => updateField('applicant_1_age', e.target.value)}
-          />
-        </label>
-
-        <label>
-          Applicant 1 hospital cover history
-          <select
-            value={form.applicant_1_hospital_history}
-            onChange={(e) =>
-              updateField('applicant_1_hospital_history', e.target.value)
-            }
-          >
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-            <option value="Not sure">Not sure</option>
-          </select>
-        </label>
-
-        {!isSingle && (
-          <>
+      <div className="layout">
+        <div className="form-panel">
+          <form onSubmit={handleSubmit}>
             <label>
-              Applicant 2 age
+              Customer name
+              <input
+                type="text"
+                required
+                value={form.customer_name}
+                onChange={(e) => updateField('customer_name', e.target.value)}
+              />
+            </label>
+
+            <label>
+              Cover type
+              <select
+                value={form.cover_type}
+                onChange={(e) => updateField('cover_type', e.target.value)}
+              >
+                <option value="Single">Single</option>
+                <option value="Couple">Couple</option>
+                <option value="Family">Family</option>
+              </select>
+            </label>
+
+            <label>
+              Applicant 1 age
               <input
                 type="number"
                 min="18"
                 max="100"
                 required
-                value={form.applicant_2_age}
-                onChange={(e) => updateField('applicant_2_age', e.target.value)}
+                value={form.applicant_1_age}
+                onChange={(e) => updateField('applicant_1_age', e.target.value)}
               />
             </label>
 
             <label>
-              Applicant 2 hospital cover history
+              Applicant 1 hospital cover history
               <select
-                value={form.applicant_2_hospital_history}
+                value={form.applicant_1_hospital_history}
                 onChange={(e) =>
-                  updateField('applicant_2_hospital_history', e.target.value)
+                  updateField('applicant_1_hospital_history', e.target.value)
                 }
               >
                 <option value="Yes">Yes</option>
@@ -201,91 +175,168 @@ function App() {
                 <option value="Not sure">Not sure</option>
               </select>
             </label>
-          </>
-        )}
 
-        <label>
-          Hospital cover level
-          <select
-            value={form.hospital_cover_level}
-            onChange={(e) => updateField('hospital_cover_level', e.target.value)}
-          >
-            <option value="None">None</option>
-            <option value="Basic">Basic</option>
-            <option value="Bronze">Bronze</option>
-            <option value="Silver">Silver</option>
-            <option value="Gold">Gold</option>
-          </select>
-        </label>
+            {!isSingle && (
+              <>
+                <label>
+                  Applicant 2 age
+                  <input
+                    type="number"
+                    min="18"
+                    max="100"
+                    required
+                    value={form.applicant_2_age}
+                    onChange={(e) => updateField('applicant_2_age', e.target.value)}
+                  />
+                </label>
 
-        <label>
-          Extras cover level
-          <select
-            value={form.extras_cover_level}
-            onChange={(e) => updateField('extras_cover_level', e.target.value)}
-          >
-            <option value="None">None</option>
-            <option value="Basic">Basic</option>
-            <option value="Standard">Standard</option>
-            <option value="Premium">Premium</option>
-          </select>
-        </label>
+                <label>
+                  Applicant 2 hospital cover history
+                  <select
+                    value={form.applicant_2_hospital_history}
+                    onChange={(e) =>
+                      updateField('applicant_2_hospital_history', e.target.value)
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="Not sure">Not sure</option>
+                  </select>
+                </label>
+              </>
+            )}
 
-        <label>
-          Payment frequency
-          <select
-            value={form.payment_frequency}
-            onChange={(e) => updateField('payment_frequency', e.target.value)}
-          >
-            <option value="Monthly">Monthly</option>
-            <option value="Yearly">Yearly</option>
-          </select>
-        </label>
+            <label>
+              Hospital cover level
+              <select
+                value={form.hospital_cover_level}
+                onChange={(e) => updateField('hospital_cover_level', e.target.value)}
+              >
+                <option value="None">None</option>
+                <option value="Basic">Basic</option>
+                <option value="Bronze">Bronze</option>
+                <option value="Silver">Silver</option>
+                <option value="Gold">Gold</option>
+              </select>
+            </label>
 
-        {isYearly && (
-          <label>
-            Annual-payment discount %
-            <input
-              type="number"
-              min="0"
-              max="10"
-              value={form.annual_discount_percent}
-              onChange={(e) =>
-                updateField('annual_discount_percent', e.target.value)
-              }
-            />
-          </label>
-        )}
+            <label>
+              Extras cover level
+              <select
+                value={form.extras_cover_level}
+                onChange={(e) => updateField('extras_cover_level', e.target.value)}
+              >
+                <option value="None">None</option>
+                <option value="Basic">Basic</option>
+                <option value="Standard">Standard</option>
+                <option value="Premium">Premium</option>
+              </select>
+            </label>
 
-        <label>
-          Notes
-          <textarea
-            value={form.notes}
-            onChange={(e) => updateField('notes', e.target.value)}
-          />
-        </label>
+            <label>
+              Payment frequency
+              <select
+                value={form.payment_frequency}
+                onChange={(e) => updateField('payment_frequency', e.target.value)}
+              >
+                <option value="Monthly">Monthly</option>
+                <option value="Yearly">Yearly</option>
+              </select>
+            </label>
 
-        <button type="submit">
-          {editingId ? 'Save Changes' : 'Add Record'}
-        </button>
-        {editingId && (
-          <button type="button" onClick={handleCancelEdit}>
-            Cancel
-          </button>
-        )}
-      </form>
+            {isYearly && (
+              <label>
+                Annual-payment discount %
+                <input
+                  type="number"
+                  min="0"
+                  max="10"
+                  value={form.annual_discount_percent}
+                  onChange={(e) =>
+                    updateField('annual_discount_percent', e.target.value)
+                  }
+                />
+              </label>
+            )}
 
-      <ul>
-        {records.map((record) => (
-          <li key={record.id}>
-            {record.customer_name} — {record.cover_type} —{' '}
-            {record.hospital_cover_level}/{record.extras_cover_level} —{' '}
-            {record.payment_frequency}
-            <button onClick={() => handleEditClick(record)}>Edit</button>
-            <button onClick={() => handleDelete(record.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+            <label>
+              Notes
+              <textarea
+                value={form.notes}
+                onChange={(e) => updateField('notes', e.target.value)}
+              />
+            </label>
+
+            <div className="form-actions">
+              {editingId && (
+                <button type="button" className="btn-cancel" onClick={handleCancelEdit}>
+                  Cancel
+                </button>
+              )}
+              <button type="submit" className="btn-primary">
+                {editingId ? 'Update Quote' : 'Create Quote'}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div className="records-panel">
+          <div className="records-list">
+            {records.map((record) => (
+              <div key={record.id} className="record-card">
+                <div
+                  className="record-row"
+                  onClick={() => toggleExpand(record.id)}
+                >
+                  <div className="record-summary">
+                    <strong>{record.customer_name}</strong> — {record.cover_type}
+                  </div>
+                  <div className="record-actions">
+                    <button
+                      className="btn-edit"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditClick(record);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(record.id);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+
+                {expandedId === record.id && (
+                  <div className="record-details">
+                    <p><strong>Applicant 1 age:</strong> {record.applicant_1_age}</p>
+                    <p><strong>Applicant 1 hospital history:</strong> {record.applicant_1_hospital_history}</p>
+                    {record.applicant_2_age != null && (
+                      <>
+                        <p><strong>Applicant 2 age:</strong> {record.applicant_2_age}</p>
+                        <p><strong>Applicant 2 hospital history:</strong> {record.applicant_2_hospital_history}</p>
+                      </>
+                    )}
+                    <p><strong>Hospital cover:</strong> {record.hospital_cover_level}</p>
+                    <p><strong>Extras cover:</strong> {record.extras_cover_level}</p>
+                    <p><strong>Payment frequency:</strong> {record.payment_frequency}</p>
+                    {record.annual_discount_percent != null && (
+                      <p><strong>Annual discount:</strong> {record.annual_discount_percent}%</p>
+                    )}
+                    {record.notes && <p><strong>Notes:</strong> {record.notes}</p>}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
