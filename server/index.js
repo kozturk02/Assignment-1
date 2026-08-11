@@ -62,13 +62,19 @@ app.use(express.json());
 
 // CREATE
 app.post('/records', (req, res) => {
-  const { 
-    id, customer_name, cover_type,
-    applicant1_age, applicant1_cover_history,
-    applicant2_age, applicant2_cover_history,
-    hospital_cover, extras_cover, payment_frequency,
-    annual_discount, notes
-  } = req.body;
+const {
+  customer_name,
+  cover_type,
+  applicant_1_age,
+  applicant_1_hospital_history,
+  applicant_2_age,
+  applicant_2_hospital_history,
+  hospital_cover_level,
+  extras_cover_level,
+  payment_frequency,
+  annual_discount_percent,
+  notes,
+} = req.body;
 
   const errors = validateRecord(req.body);
   if (errors.length > 0) {
@@ -144,6 +150,11 @@ app.put('/records/:id', (req, res) => {
     annual_discount_percent,
     notes,
   } = req.body;
+
+  const errors = validateRecord(req.body);
+  if (errors.length > 0) {
+    return res.status(400).json({ error: errors.join('; ') });
+  }
 
   try {
     const stmt = db.prepare(`
