@@ -191,56 +191,6 @@ function App() {
             </label>
 
             <label>
-              Cover type
-              <select
-                value={form.cover_type}
-                onChange={(e) => updateField('cover_type', e.target.value)}
-              >
-                <option value="Single">Single</option>
-                <option value="Couple">Couple</option>
-                <option value="Family">Family</option>
-              </select>
-            </label>
-
-                        <label>
-              Hospital cover level
-              <select
-                value={form.hospital_cover_level}
-                onChange={(e) => updateField('hospital_cover_level', e.target.value)}
-              >
-                <option value="None">None</option>
-                <option value="Basic">Basic</option>
-                <option value="Bronze">Bronze</option>
-                <option value="Silver">Silver</option>
-                <option value="Gold">Gold</option>
-              </select>
-            </label>
-
-            <label>
-              Extras cover level
-              <select
-                value={form.extras_cover_level}
-                onChange={(e) => updateField('extras_cover_level', e.target.value)}
-              >
-                <option value="None">None</option>
-                <option value="Basic">Basic</option>
-                <option value="Standard">Standard</option>
-                <option value="Premium">Premium</option>
-              </select>
-            </label>
-
-            <label>
-              Payment frequency
-              <select
-                value={form.payment_frequency}
-                onChange={(e) => updateField('payment_frequency', e.target.value)}
-              >
-                <option value="Monthly">Monthly</option>
-                <option value="Yearly">Yearly</option>
-              </select>
-            </label>
-
-            <label>
               Applicant 1 age
               <input
                 type="number"
@@ -297,6 +247,57 @@ function App() {
     </label>
   </>
 )}
+
+            <label>
+              Cover type
+              <select
+                value={form.cover_type}
+                onChange={(e) => updateField('cover_type', e.target.value)}
+              >
+                <option value="Single">Single</option>
+                <option value="Couple">Couple</option>
+                <option value="Family">Family</option>
+              </select>
+            </label>
+
+                        <label>
+              Hospital cover level
+              <select
+                value={form.hospital_cover_level}
+                onChange={(e) => updateField('hospital_cover_level', e.target.value)}
+              >
+                <option value="None">None</option>
+                <option value="Basic">Basic</option>
+                <option value="Bronze">Bronze</option>
+                <option value="Silver">Silver</option>
+                <option value="Gold">Gold</option>
+              </select>
+            </label>
+
+            <label>
+              Extras cover level
+              <select
+                value={form.extras_cover_level}
+                onChange={(e) => updateField('extras_cover_level', e.target.value)}
+              >
+                <option value="None">None</option>
+                <option value="Basic">Basic</option>
+                <option value="Standard">Standard</option>
+                <option value="Premium">Premium</option>
+              </select>
+            </label>
+
+            <label>
+              Payment frequency
+              <select
+                value={form.payment_frequency}
+                onChange={(e) => updateField('payment_frequency', e.target.value)}
+              >
+                <option value="Monthly">Monthly</option>
+                <option value="Yearly">Yearly</option>
+              </select>
+            </label>
+
 
 {isYearly && (
   <label>
