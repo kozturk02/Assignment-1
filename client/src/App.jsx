@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './App.css';
+import QuoteModal from './QuoteModal';
 
 const API_URL = 'http://localhost:3001';
 
@@ -46,6 +47,7 @@ function getPageNumbers(current, total) {
 function App() {
   const [records, setRecords] = useState([]);
   const [form, setForm] = useState(initialForm);
+  const [quoteModalData, setQuoteModalData] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
   const [search, setSearch] = useState('');
@@ -335,8 +337,15 @@ function App() {
               />
             </label>
 
-            <div className="form-actions full-width">
-              {editingId && (
+<div className="form-actions full-width">
+  <button
+    type="button"
+    className="btn-view-quote"
+    onClick={() => setQuoteModalData(form)}
+  >
+    View Quote
+  </button>
+  {editingId && (
                 <button type="button" className="btn-cancel" onClick={handleCancelEdit}>
                   Cancel
                 </button>
@@ -412,7 +421,14 @@ function App() {
                     {record.annual_discount_percent != null && (
                       <p><strong>Annual discount:</strong> {record.annual_discount_percent}%</p>
                     )}
-                    {record.notes && <p><strong>Notes:</strong> {record.notes}</p>}
+  {record.notes && <p><strong>Notes:</strong> {record.notes}</p>}
+                    <button
+                      type="button"
+                      className="btn-view-quote"
+                      onClick={() => setQuoteModalData(record)}
+                    >
+                      View Quote
+                    </button>
                   </div>
                 )}
               </div>
@@ -459,7 +475,14 @@ function App() {
   </div>
 )}
         </div>
-      </div>
+</div>
+
+      {quoteModalData && (
+        <QuoteModal
+          record={quoteModalData}
+          onClose={() => setQuoteModalData(null)}
+        />
+      )}
     </div>
   );
 }
