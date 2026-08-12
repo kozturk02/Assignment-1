@@ -51,13 +51,13 @@ function QuoteModal({ record, onClose }) {
             <div className="quote-line-divider" />
 
             <div className="quote-line">
-              <span>Applicant 1 LHC loading</span>
-              <span>{formatPercent(quote.applicant1LoadingPercent)}</span>
+              <span>Applicant 1 loading ({formatPercent(quote.applicant1LoadingPercent)})</span>
+              <span>{formatMoney(quote.applicant1LoadingCost)}</span>
             </div>
             {quote.applicant2LoadingPercent !== null && (
               <div className="quote-line">
-                <span>Applicant 2 LHC loading</span>
-                <span>{formatPercent(quote.applicant2LoadingPercent)}</span>
+                <span>Applicant 2 loading ({formatPercent(quote.applicant2LoadingPercent)})</span>
+                <span>{formatMoney(quote.applicant2LoadingCost)}</span>
               </div>
             )}
             <div className="quote-line-divider" />

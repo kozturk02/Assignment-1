@@ -77,6 +77,7 @@ export function calculateQuote(data) {
     adultCount,
     hospitalCoverPrice,
     extrasCoverPrice,
+    loadingFeeTotal,
     familyFee,
     monthlyCost,
     yearlyCost,
