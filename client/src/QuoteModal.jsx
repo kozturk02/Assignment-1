@@ -50,15 +50,15 @@ function QuoteModal({ record, onClose }) {
                 <span>&nbsp;&nbsp;&nbsp;&nbsp;LHC loading fee (Base + {formatPercent(quote.applicant2LoadingPercent)})</span>
                 <span>{formatMoney(quote.applicant2LoadingCost)}</span>
               </div>
-            </>)}
-            </>)}
-
+            </>
+          )}
             {quote.loadingTotal > 0 && (
-            <div className="quote-line-tip">
-              <span>Lifetime Health Cover Fee (+2% each year after age 30)</span>
-              <span>{LHC_STATEMENT}</span>
-            </div>
+              <div className="quote-line-tip">
+                <span>Lifetime Health Cover Fee (+2% each year after age 30)</span>
+                <span>{LHC_STATEMENT}</span>
+              </div>
             )}
+            </>)}
 
             {(quote.extrasCoverTotal > 0 || quote.familyFee > 0) && (<>
 
