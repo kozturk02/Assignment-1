@@ -34,23 +34,12 @@ function QuoteModal({ record, onClose }) {
 
           <div className="quote-lines">
             <div className="quote-line">
-              <span>Estimated monthly premium</span>
-              <span>{formatMoney(quote.monthlyPremium)}</span>
+              <span>Hospital cover ({quote.hospitalCoverLevel}) x{quote.adultCount} Adult(s)</span>
+              <span>{formatMoney(quote.hospitalCoverPrice)}</span>
             </div>
             <div className="quote-line">
-              <span>Yearly premium before discount</span>
-              <span>{formatMoney(quote.yearlyBeforeDiscount)}</span>
-            </div>
-
-            <div className="quote-line-divider" />
-
-            <div className="quote-line">
-              <span>Hospital premium ({quote.hospitalCoverLevel})</span>
-              <span>{formatMoney(quote.hospitalPremium)}</span>
-            </div>
-            <div className="quote-line">
-              <span>Extras premium ({quote.extrasCoverLevel})</span>
-              <span>{formatMoney(quote.extrasPremium)}</span>
+              <span>Extras premium ({quote.extrasCoverLevel}) x{quote.adultCount} Adult(s)</span>
+              <span>{formatMoney(quote.extrasCoverPrice)}</span>
             </div>
             {quote.familyFee > 0 && (
               <div className="quote-line">
@@ -72,19 +61,32 @@ function QuoteModal({ record, onClose }) {
               </div>
             )}
 
+            <div className="quote-line-divider" />
+
+            <div className="quote-line">
+              <span>Estimated monthly premium</span>
+              <span>{formatMoney(quote.monthlyCost)}</span>
+            </div>
+            <div className="quote-line">
+              <span>Estimated Yearly cost</span>
+              <span>{formatMoney(quote.yearlyCost)}</span>
+            </div>
+
+            <div className="quote-line-divider" />
+
             {quote.isYearly && (
               <>
-                <div className="quote-line-divider" />
                 <div className="quote-line">
                   <span>Yearly discount ({formatPercent(quote.discountPercent)})</span>
                   <span>-{formatMoney(quote.discountAmount)}</span>
                 </div>
-                <div className="quote-line quote-line-final">
-                  <span>Final total — yearly premium after discount</span>
-                  <span>{formatMoney(quote.yearlyAfterDiscount)}</span>
-                </div>
               </>
             )}
+
+            <div className="quote-line quote-line-final">
+              <span>Final total</span>
+              <span>{formatMoney(quote.finalTotal)}</span>
+            </div>
           </div>
           <div className="quote-box quote-box-info">
             <div className="quote-box-title">ⓘ LHC required statement</div>

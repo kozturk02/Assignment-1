@@ -28,9 +28,10 @@ export function calculateQuote(data) {
   const isYearly = data.payment_frequency === 'Yearly';
 
   const adultCount = COVER_TYPE_ADULTS[data.cover_type] ?? 1;
-  const hospitalTierPrice = HOSPITAL_TIER_PRICES[data.hospital_cover_level] ?? 0;
-  const extrasTierPrice = EXTRAS_TIER_PRICES[data.extras_cover_level] ?? 0;
+  const hospitalCoverPrice = HOSPITAL_TIER_PRICES[data.hospital_cover_level] ?? 0;
+  const extrasCoverPrice = EXTRAS_TIER_PRICES[data.extras_cover_level] ?? 0;
   const familyFee = data.cover_type === 'Family' ? FAMILY_UPGRADE_FEE : 0;
+  const loadingFeeTotal = 0;
 
   const warnings = [];
 
@@ -39,11 +40,12 @@ export function calculateQuote(data) {
     data.applicant_1_hospital_history,
     data.hospital_cover_level
   );
+
   if (applicant1.unknown) {
     warnings.push('Applicant 1: Cover history is unknown — LHC loading has not been applied. This quote may be inaccurate.');
+  } else if (applicant1.loading > 0) {
+    loadingFeeTotal += hospitalCoverPrice * applicant1.loading;
   }
-
-  let hospitalPremium = hospitalTierPrice * (1 + applicant1.loading);
 
   let applicant2 = null;
   if (!isSingle) {
@@ -54,34 +56,37 @@ export function calculateQuote(data) {
     );
     if (applicant2.unknown) {
       warnings.push( 'Applicant 2: Cover history is unknown — LHC loading has not been applied. This quote may be inaccurate.');
+    } else if (applicant2.loading > 0) {
+      loadingFeeTotal += hospitalCoverPrice * applicant2.loading;
     }
-    hospitalPremium += hospitalTierPrice * (1 + applicant2.loading);
+    hospitalCoverPrice = hospitalCoverPrice * 2;
+    extrasCoverPrice = extrasCoverPrice * 2;
   }
 
-  const extrasPremium = extrasTierPrice * adultCount;
-  const monthlyPremium = hospitalPremium + extrasPremium + familyFee;
-  const yearlyBeforeDiscount = monthlyPremium * 12;
+  const monthlyCost = hospitalCoverPrice + extrasCoverPrice + familyFee + loadingFeeTotal;
+  const yearlyCost = monthlyCost * 12;
 
   const discountPercent = isYearly ? Number(data.annual_discount_percent || 0) : 0;
   const discountAmount = isYearly ? yearlyBeforeDiscount * (discountPercent / 100) : 0;
-  const yearlyAfterDiscount = isYearly ? yearlyBeforeDiscount - discountAmount : null;
 
-  const finalTotal = isYearly ? yearlyAfterDiscount : monthlyPremium;
+  const finalTotal = isYearly ? (yearlyAfterDiscount - discountAmount) : monthlyPremium;
 
   return {
     isSingle,
     isYearly,
-    hospitalCoverLevel: data.hospital_cover_level,
-    extrasCoverLevel: data.extras_cover_level,
-    hospitalPremium,
-    extrasPremium,
+    adultCount,
+    hospitalCoverPrice,
+    extrasCoverPrice,
     familyFee,
-    monthlyPremium,
-    yearlyBeforeDiscount,
+    monthlyCost,
+    yearlyCost,
     discountPercent,
     discountAmount,
-    yearlyAfterDiscount,
     finalTotal,
+    hospitalCoverLevel: data.hospital_cover_level,
+    extrasCoverLevel: data.extras_cover_level,
+    applicant1LoadingCost: applicant1.loading,
+    applicant2LoadingCost: applicant2 ? applicant2.loading : null,
     applicant1LoadingPercent: applicant1.loading * 100,
     applicant2LoadingPercent: applicant2 ? applicant2.loading * 100 : null,
     warnings,
