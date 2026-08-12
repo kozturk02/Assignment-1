@@ -58,7 +58,7 @@ function QuoteModal({ record, onClose }) {
 
             {quote.extrasCoverTotal > 0 && (
               <div className="quote-line">
-                <span>x{quote.adultCount} Extras premium ({quote.extrasCoverLevel} Cover)</span>
+                <span>Extras premium ({quote.extrasCoverLevel} Cover) x{quote.adultCount}</span>
                 <span>{formatMoney(quote.extrasCoverTotal)}</span>
             </div>
             )}
