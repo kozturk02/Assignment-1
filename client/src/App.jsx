@@ -130,7 +130,7 @@ function handleQuote() {
   const annualDiscount = Number(form.annual_discount_percent);
 
   if (
-    !form.applicant_1_age ||
+    form.applicant_1_age === '' ||
     applicant1Age < 18 ||
     applicant1Age > 100
   ) {
@@ -143,7 +143,7 @@ function handleQuote() {
 
   if (
     needsApplicant2 &&
-    (!form.applicant_2_age ||
+    (form.applicant_2_age === '' ||
       applicant2Age < 18 ||
       applicant2Age > 100)
   ) {
@@ -152,19 +152,18 @@ function handleQuote() {
   }
 
   if (
-    form.extras_cover_level === 'None' &&
     form.hospital_cover_level === 'None'
   ) {
     setErrorMessage(
-      'Please select at least one hospital or extras cover option.'
+      'Please select at least one hospital cover option.'
     );
     return;
   }
 
   if (
     form.payment_frequency === 'Yearly' &&
-    form.annual_discount_percent !== '' &&
-    (annualDiscount < 0 || annualDiscount > 10)
+    (form.annual_discount_percent === '' ||
+    annualDiscount < 0 || annualDiscount > 10)
   ) {
     setErrorMessage('Annual discount must be between 0% and 10%.');
     return;
