@@ -52,8 +52,8 @@ function QuoteModal({ record, onClose }) {
               </div>
             </>)}
 
-            {quote.extrasCoverTotal > 0 || quote.familyFee > 0 && (<>
-            
+            {(quote.extrasCoverTotal > 0 || quote.familyFee > 0) && (<>
+
             <div className="quote-line-divider" />
 
             {quote.extrasCoverTotal > 0 && (
