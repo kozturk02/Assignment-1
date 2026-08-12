@@ -2,7 +2,10 @@ import { calculateQuote } from './calculateQuote';
 import { LHC_STATEMENT } from './pricingConfig';
 
 function formatMoney(amount) {
-  return `$${amount.toFixed(2)}`;
+  return `$${amount.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 }
 
 function formatPercent(value) {

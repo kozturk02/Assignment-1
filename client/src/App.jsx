@@ -95,7 +95,7 @@ function App() {
     setForm(initialForm);
   }
 
-  function handleEditClick(record) {
+function handleEdit(record) {
     setEditingId(record.id);
     setForm({
       customer_name: record.customer_name,
@@ -103,8 +103,7 @@ function App() {
       applicant_1_age: record.applicant_1_age,
       applicant_1_hospital_history: record.applicant_1_hospital_history,
       applicant_2_age: record.applicant_2_age ?? '',
-      applicant_2_hospital_history:
-        record.applicant_2_hospital_history ?? 'Not sure',
+      applicant_2_hospital_history: record.applicant_2_hospital_history ?? 'Not sure',
       hospital_cover_level: record.hospital_cover_level,
       extras_cover_level: record.extras_cover_level,
       payment_frequency: record.payment_frequency,
@@ -113,14 +112,14 @@ function App() {
     });
   }
 
-  function handleCancelEdit() {
+  function cancelEdit() {
     setEditingId(null);
     setForm(initialForm);
   }
 
-  async function handleDelete(id) {
+  async function deleteRecord(id) {
     await fetch(`${API_URL}/records/${id}`, { method: 'DELETE' });
-    setRecords(records.filter((r) => r.id !== id));
+    setRecords(records.filter((record) => record.id !== id));
   }
 
   const isSingle = form.cover_type === 'Single';
@@ -139,7 +138,7 @@ function App() {
       <h1>Health Cover Records</h1>
 
       <div className="layout">
-        <section className="form-panel">
+        <div className="form-panel">
           <h2>{editingId ? 'Edit Quote' : 'Create Quote'}</h2>
 
           <form onSubmit={handleSubmit} className="quote-form">
@@ -269,74 +268,117 @@ function App() {
               Notes
               <textarea value={form.notes} onChange={(e) => updateField('notes', e.target.value)} />
             </label>
-
-            <div className="form-actions full-width">
-              <button type="button" onClick={() => setQuoteModalData(form)}>
-                View Quote
-              </button>
-
-              {editingId && (
-                <button type="button" onClick={cancelEdit}>
+<div className="form-actions full-width">
+  <button
+    type="button"
+    className="btn-view-quote"
+    onClick={() => setQuoteModalData(form)}
+  >
+    View Quote
+  </button>
+  {editingId && (
+                <button type="button" className="btn-cancel" onClick={handleCancelEdit}>
                   Cancel
                 </button>
               )}
-
-              <button type="submit">{editingId ? 'Update Quote' : 'Create Quote'}</button>
+              <button type="submit" className="btn-primary">
+                {editingId ? 'Update Quote' : '+  Create Quote'}
+              </button>
             </div>
           </form>
-        </section>
+        </div>
 
-        <section className="records-panel">
-          <h2>Your Records ({records.length})</h2>
+        <div className="records-panel">
+          <div className="records-header">
+            <h2>Your Records</h2>
+            <span className="quote-count">{records.length} quotes</span>
+          </div>
 
-          <input
-            className="search-input"
-            type="text"
-            placeholder="Search records"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="Search records..."
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+            />
+          </div>
 
           <div className="records-list">
             {paginatedRecords.map((record) => (
               <div key={record.id} className="record-card">
-                <button className="record-main" onClick={() => handleEdit(record)}>
-                  <strong>{record.customer_name}</strong>
-                  <span>{formatDate(record.created_at)}</span>
-                </button>
-
-                <button className="delete-button" onClick={() => deleteRecord(record.id)}>
-                  Delete
-                </button>
+                <div className="record-row" onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditClick(record);
+                      }}>
+                  <div className="record-summary">
+                    <strong>{record.customer_name}</strong>
+                    <span className="record-meta">
+                      {formatDate(record.created_at)}
+                    </span>
+                  </div>
+                  <div className="record-actions">
+                    <button
+                      className="btn-delete"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(record.id);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
 
-            {filteredRecords.length === 0 && <p>No records found.</p>}
-          </div>
+{filteredRecords.length === 0 && (
+  <p className="no-results">No records match your search.</p>
+)}
+</div>
 
-          {filteredRecords.length > RECORDS_PER_PAGE && (
-            <div className="pagination">
-              <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>
-                Previous
-              </button>
+{filteredRecords.length > 0 && (
+  <div className="pagination">
+    <button
+      className="btn-page btn-arrow"
+      disabled={currentPage === 1}
+      onClick={() => setCurrentPage((p) => p - 1)}
+    >
+      ‹
+    </button>
 
-              <span>
-                Page {currentPage} of {totalPages}
-              </span>
+    {getPageNumbers(currentPage, totalPages).map((page, index) =>
+      page === '...' ? (
+        <span key={`ellipsis-${index}`} className="page-ellipsis">
+          ...
+        </span>
+      ) : (
+        <button
+          key={page}
+          className={`btn-page ${page === currentPage ? 'btn-page-active' : ''}`}
+          onClick={() => setCurrentPage(page)}
+        >
+          {page}
+        </button>
+      )
+    )}
 
-              <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>
-                Next
-              </button>
-            </div>
-          )}
-        </section>
-      </div>
+    <button
+      className="btn-page btn-arrow"
+      disabled={currentPage === totalPages}
+      onClick={() => setCurrentPage((p) => p + 1)}
+    >
+      ›
+    </button>
+  </div>
+)}
+        </div>
+</div>
 
       {quoteModalData && (
-        <QuoteModal record={quoteModalData} onClose={() => setQuoteModalData(null)} />
+        <QuoteModal
+          record={quoteModalData}
+          onClose={() => setQuoteModalData(null)}
+        />
       )}
     </div>
   );
