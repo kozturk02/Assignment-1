@@ -44,7 +44,7 @@ export function calculateQuote(data) {
   if (applicant1.unknown) {
     warnings.push('Applicant 1: Cover history is unknown — LHC loading has not been applied. This quote may be inaccurate.');
   } else if (applicant1.loading > 0) {
-    loadingFeeTotal += hospitalCoverPrice * applicant1.loading;
+    loadingFeeTotal = (hospitalCoverPrice * applicant1.loading);
   }
 
   let applicant2 = null;
@@ -57,7 +57,7 @@ export function calculateQuote(data) {
     if (applicant2.unknown) {
       warnings.push( 'Applicant 2: Cover history is unknown — LHC loading has not been applied. This quote may be inaccurate.');
     } else if (applicant2.loading > 0) {
-      loadingFeeTotal += hospitalCoverPrice * applicant2.loading;
+      loadingFeeTotal += (hospitalCoverPrice * applicant2.loading);
     }
     hospitalCoverPrice = hospitalCoverPrice * 2;
     extrasCoverPrice = extrasCoverPrice * 2;

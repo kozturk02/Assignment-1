@@ -67,23 +67,25 @@ function QuoteModal({ record, onClose }) {
               <span>{formatMoney(quote.monthlyCost)}</span>
             </div>
             <div className="quote-line">
-              <span>Estimated Yearly cost</span>
-              {quote.isMonthly && (
+              <span>Estimated Yearly premium</span>
+              {quote.discountAmount === 0 && (<>
+                <span>Estimated yearly premium</span>
                 <span>{formatMoney(quote.yearlyCost)}</span>
-              )}
-              {quote.isYearly && (
+              </>)}
+              {quote.discountAmount > 0 && (<>
+                <span>Old yearly premium</span>
                 <span><s>{formatMoney(quote.yearlyCost)}</s></span>
-              )}
+              </>)}
             </div>
 
-            {quote.isYearly && (
+            {quote.discountAmount > 0  && (
               <>
                 <div className="quote-line">
                   <span>&nbsp;&nbsp;Yearly discount ({formatPercent(quote.discountPercent)})</span>
                   <span>-{formatMoney(quote.discountAmount)}</span>
                 </div>
                 <div className="quote-line">
-                  <span>&nbsp;&nbsp;Discounted yearly cost</span>
+                  <span>&nbsp;&nbsp;Estimated yearly premium (discounted)</span>
                   <span>{formatMoney((quote.yearlyCost - quote.discountAmount))}</span>
                 </div>
               </>
