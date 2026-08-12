@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import QuoteModal from './QuoteModal';
 
@@ -26,7 +26,7 @@ function formatDate(timestamp) {
 
 function getPageNumbers(current, total) {
   if (total <= 5) {
-    return Array.from({ length: total }, (_, i) => i + 1);
+    return Array.from({ length: total }, (_, index) => index + 1);
   }
 
   if (current <= 3) {
@@ -51,12 +51,12 @@ function App() {
   useEffect(() => {
     fetch(`${API_URL}/records`)
       .then((res) => res.json())
-      .then((data) => setRecords(data))
+      .then(setRecords)
       .catch((err) => console.error('Failed to fetch records:', err));
   }, []);
 
   function updateField(field, value) {
-    setForm({ ...form, [field]: value });
+    setForm((currentForm) => ({ ...currentForm, [field]: value }));
   }
 
   function buildPayload() {
@@ -83,8 +83,8 @@ function App() {
     };
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  async function handleSubmit(event) {
+    event.preventDefault();
 
     const payload = buildPayload();
     const url = editingId
@@ -107,10 +107,14 @@ function App() {
     const saved = await res.json();
 
     if (editingId) {
-      setRecords(records.map((r) => (r.id === editingId ? saved : r)));
+      setRecords((currentRecords) =>
+        currentRecords.map((record) =>
+          record.id === editingId ? saved : record
+        )
+      );
       setEditingId(null);
     } else {
-      setRecords([...records, saved]);
+      setRecords((currentRecords) => [...currentRecords, saved]);
     }
 
     setForm(initialForm);
@@ -141,20 +145,28 @@ function App() {
 
   async function handleDelete(id) {
     await fetch(`${API_URL}/records/${id}`, { method: 'DELETE' });
-    setRecords(records.filter((r) => r.id !== id));
+    setRecords((currentRecords) =>
+      currentRecords.filter((record) => record.id !== id)
+    );
   }
 
-  const isSingle = form.cover_type === 'Single';
+  const needsApplicant2 = form.cover_type !== 'Single';
   const isYearly = form.payment_frequency === 'Yearly';
-  const needsApplicant2 = !isSingle;
+  const normalizedSearch = search.toLowerCase();
 
-  const filteredRecords = records.filter((r) =>
-    r.customer_name.toLowerCase().includes(search.toLowerCase())
+  const filteredRecords = records.filter((record) =>
+    record.customer_name.toLowerCase().includes(normalizedSearch)
   );
 
-  const totalPages = Math.max(1, Math.ceil(filteredRecords.length / RECORDS_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredRecords.length / RECORDS_PER_PAGE)
+  );
   const startIndex = (currentPage - 1) * RECORDS_PER_PAGE;
-  const paginatedRecords = filteredRecords.slice(startIndex, startIndex + RECORDS_PER_PAGE);
+  const paginatedRecords = filteredRecords.slice(
+    startIndex,
+    startIndex + RECORDS_PER_PAGE
+  );
 
   return (
     <div className="App">
@@ -177,7 +189,9 @@ function App() {
                 placeholder="e.g. John Smith"
                 required
                 value={form.customer_name}
-                onChange={(e) => updateField('customer_name', e.target.value)}
+                onChange={(event) =>
+                  updateField('customer_name', event.target.value)
+                }
               />
             </label>
 
@@ -190,7 +204,9 @@ function App() {
                 placeholder="18–100"
                 required
                 value={form.applicant_1_age}
-                onChange={(e) => updateField('applicant_1_age', e.target.value)}
+                onChange={(event) =>
+                  updateField('applicant_1_age', event.target.value)
+                }
               />
             </label>
 
@@ -198,8 +214,11 @@ function App() {
               Applicant 1 hospital cover history
               <select
                 value={form.applicant_1_hospital_history}
-                onChange={(e) =>
-                  updateField('applicant_1_hospital_history', e.target.value)
+                onChange={(event) =>
+                  updateField(
+                    'applicant_1_hospital_history',
+                    event.target.value
+                  )
                 }
               >
                 <option value="Yes">Yes</option>
@@ -209,41 +228,48 @@ function App() {
             </label>
 
             {needsApplicant2 && (
-  <>
-    <label>
-      Applicant 2 age
-      <input
-        type="number"
-        min="18"
-        max="100"
-        required
-        value={form.applicant_2_age}
-        onChange={(e) => updateField('applicant_2_age', e.target.value)}
-      />
-    </label>
+              <>
+                <label>
+                  Applicant 2 age
+                  <input
+                    type="number"
+                    min="18"
+                    max="100"
+                    required
+                    value={form.applicant_2_age}
+                    onChange={(event) =>
+                      updateField('applicant_2_age', event.target.value)
+                    }
+                  />
+                </label>
 
-    <label>
-      Applicant 2 hospital cover history
-      <select
-        required
-        value={form.applicant_2_hospital_history}
-        onChange={(e) =>
-          updateField('applicant_2_hospital_history', e.target.value)
-        }
-      >
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-        <option value="Not sure">Not sure</option>
-      </select>
-    </label>
-  </>
-)}
+                <label>
+                  Applicant 2 hospital cover history
+                  <select
+                    required
+                    value={form.applicant_2_hospital_history}
+                    onChange={(event) =>
+                      updateField(
+                        'applicant_2_hospital_history',
+                        event.target.value
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="Not sure">Not sure</option>
+                  </select>
+                </label>
+              </>
+            )}
 
             <label>
               Cover type
               <select
                 value={form.cover_type}
-                onChange={(e) => updateField('cover_type', e.target.value)}
+                onChange={(event) =>
+                  updateField('cover_type', event.target.value)
+                }
               >
                 <option value="Single">Single</option>
                 <option value="Couple">Couple</option>
@@ -251,11 +277,13 @@ function App() {
               </select>
             </label>
 
-                        <label>
+            <label>
               Hospital cover level
               <select
                 value={form.hospital_cover_level}
-                onChange={(e) => updateField('hospital_cover_level', e.target.value)}
+                onChange={(event) =>
+                  updateField('hospital_cover_level', event.target.value)
+                }
               >
                 <option value="None">None</option>
                 <option value="Basic">Basic</option>
@@ -269,7 +297,9 @@ function App() {
               Extras cover level
               <select
                 value={form.extras_cover_level}
-                onChange={(e) => updateField('extras_cover_level', e.target.value)}
+                onChange={(event) =>
+                  updateField('extras_cover_level', event.target.value)
+                }
               >
                 <option value="None">None</option>
                 <option value="Basic">Basic</option>
@@ -282,53 +312,60 @@ function App() {
               Payment frequency
               <select
                 value={form.payment_frequency}
-                onChange={(e) => updateField('payment_frequency', e.target.value)}
+                onChange={(event) =>
+                  updateField('payment_frequency', event.target.value)
+                }
               >
                 <option value="Monthly">Monthly</option>
                 <option value="Yearly">Yearly</option>
               </select>
             </label>
 
-
-{isYearly && (
-  <label>
-    Annual-payment discount %
-    <input
-      type="number"
-      min="0"
-      max="10"
-      value={form.annual_discount_percent}
-      onChange={(e) =>
-        updateField('annual_discount_percent', e.target.value)
-      }
-    />
-  </label>
-)}
+            {isYearly && (
+              <label>
+                Annual-payment discount %
+                <input
+                  type="number"
+                  min="0"
+                  max="10"
+                  value={form.annual_discount_percent}
+                  onChange={(event) =>
+                    updateField('annual_discount_percent', event.target.value)
+                  }
+                />
+              </label>
+            )}
 
             <label className="full-width">
               Notes (optional)
               <textarea
                 placeholder="Add any additional notes..."
                 value={form.notes}
-                onChange={(e) => updateField('notes', e.target.value)}
+                onChange={(event) => updateField('notes', event.target.value)}
               />
             </label>
 
-<div className="form-actions full-width">
-  <button
-    type="button"
-    className="btn-view-quote"
-    onClick={() => setQuoteModalData(form)}
-  >
-    View Quote
-  </button>
-  {editingId && (
-                <button type="button" className="btn-cancel" onClick={handleCancelEdit}>
+            <div className="form-actions full-width">
+              <button
+                type="button"
+                className="btn-view-quote"
+                onClick={() => setQuoteModalData(form)}
+              >
+                View Quote
+              </button>
+
+              {editingId && (
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={handleCancelEdit}
+                >
                   Cancel
                 </button>
               )}
+
               <button type="submit" className="btn-primary">
-                {editingId ? 'Update Quote' : '+  Create Quote'}
+                {editingId ? 'Update Quote' : '+ Create Quote'}
               </button>
             </div>
           </form>
@@ -345,80 +382,84 @@ function App() {
               type="text"
               placeholder="Search records..."
               value={search}
-              onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setCurrentPage(1);
+              }}
             />
           </div>
 
           <div className="records-list">
             {paginatedRecords.map((record) => (
               <div key={record.id} className="record-card">
-                <div className="record-row" onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditClick(record);
-                      }}>
+                <div
+                  className="record-row"
+                  onClick={() => handleEditClick(record)}
+                >
                   <div className="record-summary">
                     <strong>{record.customer_name}</strong>
                     <span className="record-meta">
                       {formatDate(record.created_at)}
                     </span>
                   </div>
-                  <div className="record-actions">
-                    <button
-                      className="btn-delete"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(record.id);
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
+
+                  <button
+                    className="btn-delete"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleDelete(record.id);
+                    }}
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             ))}
 
-{filteredRecords.length === 0 && (
-  <p className="no-results">No records match your search.</p>
-)}
-</div>
+            {filteredRecords.length === 0 && (
+              <p className="no-results">No records match your search.</p>
+            )}
+          </div>
 
-{filteredRecords.length > 0 && (
-  <div className="pagination">
-    <button
-      className="btn-page btn-arrow"
-      disabled={currentPage === 1}
-      onClick={() => setCurrentPage((p) => p - 1)}
-    >
-      ‹
-    </button>
+          {filteredRecords.length > 0 && (
+            <div className="pagination">
+              <button
+                className="btn-page btn-arrow"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((page) => page - 1)}
+              >
+                ‹
+              </button>
 
-    {getPageNumbers(currentPage, totalPages).map((page, index) =>
-      page === '...' ? (
-        <span key={`ellipsis-${index}`} className="page-ellipsis">
-          ...
-        </span>
-      ) : (
-        <button
-          key={page}
-          className={`btn-page ${page === currentPage ? 'btn-page-active' : ''}`}
-          onClick={() => setCurrentPage(page)}
-        >
-          {page}
-        </button>
-      )
-    )}
+              {getPageNumbers(currentPage, totalPages).map((page, index) =>
+                page === '...' ? (
+                  <span key={`ellipsis-${index}`} className="page-ellipsis">
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={page}
+                    className={`btn-page ${
+                      page === currentPage ? 'btn-page-active' : ''
+                    }`}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
 
-    <button
-      className="btn-page btn-arrow"
-      disabled={currentPage === totalPages}
-      onClick={() => setCurrentPage((p) => p + 1)}
-    >
-      ›
-    </button>
-  </div>
-)}
+              <button
+                className="btn-page btn-arrow"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((page) => page + 1)}
+              >
+                ›
+              </button>
+            </div>
+          )}
         </div>
-</div>
+      </div>
 
       {quoteModalData && (
         <QuoteModal

@@ -24,11 +24,6 @@ body {
   font-size: 32px;
 }
 
-.page-header p {
-  margin: 0;
-  color: #6b7280;
-}
-
 .layout {
   display: flex;
   gap: 20px;
@@ -87,13 +82,6 @@ body {
   border: 1px solid #d1d5db;
   border-radius: 6px;
   color: #111827;
-}
-
-.quote-form input:disabled,
-.quote-form select:disabled {
-  background: #f3f4f6;
-  color: #9ca3af;
-  cursor: not-allowed;
 }
 
 .quote-form textarea {
@@ -216,25 +204,6 @@ body {
   color: #9ca3af;
 }
 
-.record-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-edit {
-  background: white;
-  border: 1px solid #d1d5db;
-  padding: 6px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.btn-edit:hover {
-  background: #f9fafb;
-}
-
 .btn-delete {
   background: #dc2626;
   color: white;
@@ -248,16 +217,6 @@ body {
 
 .btn-delete:hover {
   background: #b91c1c;
-}
-
-.record-details {
-  padding: 4px 14px 14px 14px;
-  background: #fafafa;
-  font-size: 14px;
-}
-
-.record-details p {
-  margin: 4px 0;
 }
 
 .no-results {
@@ -334,12 +293,6 @@ body {
   background: #eff6ff;
 }
 
-.record-details .btn-view-quote {
-  margin-top: 10px;
-  padding: 8px 14px;
-  font-size: 13px;
-}
-
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -413,12 +366,6 @@ body {
 .quote-hero-amount {
   font-size: 30px;
   font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.quote-hero-sub {
-  font-size: 13px;
-  color: #cbd5e1;
 }
 
 .quote-lines {
@@ -437,7 +384,7 @@ body {
 
 .quote-line-tip {
   text-align: left;
-  justify-content: space-between;
+  font-weight: bold;
   font-size: 14px;
   color: #1e40af;
 }
@@ -461,8 +408,7 @@ body {
 }
 
 .quote-box p {
-  align-items: left;
-  margin: 4px 0 0 0;
+  margin: 4px 0 0;
 }
 
 .quote-box-title {
@@ -473,16 +419,4 @@ body {
   background: #fff7ed;
   color: #9a3412;
   border: 1px solid #fed7aa;
-}
-
-.quote-box-info {
-  background: #eff6ff;
-  color: #1e40af;
-  border: 1px solid #bfdbfe;
-}
-
-.quote-footnote {
-  font-size: 12px;
-  color: #9ca3af;
-  margin: 0;
 }

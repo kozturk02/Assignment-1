@@ -11,6 +11,7 @@ function formatPercent(value) {
 
 function QuoteModal({ record, onClose }) {
   const quote = calculateQuote(record);
+  const hasDiscount = quote.discountAmount > 0;
   const headerLabel = quote.isYearly
     ? 'Final estimated yearly premium'
     : 'Final estimated monthly premium';
@@ -20,92 +21,129 @@ function QuoteModal({ record, onClose }) {
       <div className="modal-box">
         <div className="modal-header">
           <h2>Quote details</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
+          <button
+            type="button"
+            className="modal-close"
+            onClick={onClose}
+            aria-label="Close quote details"
+          >
+            ×
+          </button>
         </div>
 
         <div className="modal-scroll">
           <div className="quote-hero">
             <div className="quote-hero-label">{headerLabel}</div>
-            <div className="quote-hero-amount">{formatMoney(quote.finalTotal)}</div>
+            <div className="quote-hero-amount">
+              {formatMoney(quote.finalTotal)}
+            </div>
           </div>
 
           <div className="quote-lines">
             <div className="quote-line">
-              <span>Hospital premium ({quote.hospitalCoverLevel} Cover)</span>
+              <span>Hospital Premium ({quote.hospitalCoverLevel} Cover)</span>
               <span>{formatMoney(quote.hospitalCoverPrice)}</span>
             </div>
-            {quote.applicant1LoadingCost > 0 && (<>
+
+            {quote.applicant1LoadingCost > 0 && (
               <div className="quote-line">
-                <span>&nbsp;&nbsp;&nbsp;&nbsp;LHC loading fee (Base + {formatPercent(quote.applicant1LoadingPercent)})</span>
+                <span>
+                  LHC Loading Fee (Base +{' '}
+                  {formatPercent(quote.applicant1LoadingPercent)})
+                </span>
                 <span>{formatMoney(quote.applicant1LoadingCost)}</span>
               </div>
-            </>)}
-            {quote.adultCount > 1 && (<>
-            <div className="quote-line">
-              <span>Spouses' premium ({quote.hospitalCoverLevel} Cover)</span>
-              <span>{formatMoney(quote.hospitalCoverPrice)}</span>
-            </div>
-            {quote.applicant2LoadingCost > 0 && (<>
-              <div className="quote-line">
-                <span>&nbsp;&nbsp;&nbsp;&nbsp;LHC loading fee (Base + {formatPercent(quote.applicant2LoadingPercent)})</span>
-                <span>{formatMoney(quote.applicant2LoadingCost)}</span>
-              </div>
-            </>
-          )}
-            {quote.loadingTotal > 0 && (<>
-              <div className="quote-line-tip">
-                <span>Lifetime Health Cover Fee (+2% each year after age 30)</span>
-              </div>
-              <div className="quote-line-tip">
-                <span>{LHC_STATEMENT}</span>
-              </div>
-            </>)}
-            </>)}
-
-            {(quote.extrasCoverTotal > 0 || quote.familyFee > 0) && (<>
-
-            <div className="quote-line-divider" />
-
-            {quote.extrasCoverTotal > 0 && (
-              <div className="quote-line">
-                <span>Extras premium ({quote.extrasCoverLevel} Cover) x{quote.adultCount}</span>
-                <span>{formatMoney(quote.extrasCoverTotal)}</span>
-            </div>
             )}
-            {quote.familyFee > 0 && (
-              <div className="quote-line">
-                <span>Family premium (children included)</span>
-                <span>{formatMoney(quote.familyFee)}</span>
-              </div>
-            )}
-            </>)}
 
-            <div className="quote-line-divider" />
-
-            <div className="quote-line">
-              <span>Estimated monthly premium</span>
-              <span>{formatMoney(quote.monthlyCost)}</span>
-            </div>
-            <div className="quote-line">
-              {quote.discountAmount === 0 && (<>
-                <span>Estimated yearly premium</span>
-                <span>{formatMoney(quote.yearlyCost)}</span>
-              </>)}
-              {quote.discountAmount > 0 && (<>
-                <span>Old yearly premium</span>
-                <span><s>{formatMoney(quote.yearlyCost)}</s></span>
-              </>)}
-            </div>
-
-            {quote.discountAmount > 0  && (
+            {quote.adultCount > 1 && (
               <>
                 <div className="quote-line">
-                  <span>&nbsp;&nbsp;Yearly discount ({formatPercent(quote.discountPercent)})</span>
+                  <span>
+                    Spouses&apos; Premium ({quote.hospitalCoverLevel} Cover)
+                  </span>
+                  <span>{formatMoney(quote.hospitalCoverPrice)}</span>
+                </div>
+
+                {quote.applicant2LoadingCost > 0 && (
+                  <div className="quote-line">
+                    <span>
+                      LHC Loading Fee (Base +{' '}
+                      {formatPercent(quote.applicant2LoadingPercent)})
+                    </span>
+                    <span>{formatMoney(quote.applicant2LoadingCost)}</span>
+                  </div>
+                )}
+              </>
+            )}
+
+            {quote.loadingTotal > 0 && (
+              <>
+                <div className="quote-line-tip">
+                  Lifetime Health Cover Fee (+2% each year after age 30)
+                </div>
+                <div className="quote-line-tip">{LHC_STATEMENT}</div>
+              </>
+            )}
+
+            {(quote.extrasCoverTotal > 0 || quote.familyFee > 0) && (
+              <>
+                <div className="quote-line-divider" />
+
+                {quote.extrasCoverTotal > 0 && (
+                  <div className="quote-line">
+                    <span>
+                      Extras Premium ({quote.extrasCoverLevel} Cover) [
+                      {formatMoney(quote.extrasCoverPrice)} ea]
+                    </span>
+                    <span>{formatMoney(quote.extrasCoverTotal)}</span>
+                  </div>
+                )}
+
+                {quote.familyFee > 0 && (
+                  <div className="quote-line">
+                    <span>Family Premium (children included)</span>
+                    <span>{formatMoney(quote.familyFee)}</span>
+                  </div>
+                )}
+              </>
+            )}
+
+            <div className="quote-line-divider" />
+
+            <div className="quote-line">
+              <span>Estimated Monthly Premium</span>
+              <span>{formatMoney(quote.monthlyCost)}</span>
+            </div>
+
+            <div className="quote-line">
+              <span>
+                {hasDiscount ? (
+                  <s>Estimated Yearly Premium</s>
+                ) : (
+                  'Estimated Yearly Premium'
+                )}
+              </span>
+              <span>
+                {hasDiscount ? (
+                  <s>{formatMoney(quote.yearlyCost)}</s>
+                ) : (
+                  formatMoney(quote.yearlyCost)
+                )}
+              </span>
+            </div>
+
+            {hasDiscount && (
+              <>
+                <div className="quote-line">
+                  <span>Annual-Payment Discount</span>
                   <span>-{formatMoney(quote.discountAmount)}</span>
                 </div>
                 <div className="quote-line">
-                  <span>&nbsp;&nbsp;Estimated yearly premium (discounted)</span>
-                  <span>{formatMoney((quote.yearlyCost - quote.discountAmount))}</span>
+                  <span>
+                    <b>NEW</b> Yearly Premium (
+                    {formatPercent(quote.discountPercent)} OFF)
+                  </span>
+                  <span>{formatMoney(quote.finalTotal)}</span>
                 </div>
               </>
             )}
@@ -117,11 +155,14 @@ function QuoteModal({ record, onClose }) {
               <span>{formatMoney(quote.finalTotal)}</span>
             </div>
           </div>
+
           {quote.warnings.length > 0 && (
-          <div className="quote-box quote-box-warning">
-            <div className="quote-box-title">⚠ Warnings</div>
-              {quote.warnings.map((w, i) => <p key={i}>{w}</p>)}
-          </div>
+            <div className="quote-box quote-box-warning">
+              <div className="quote-box-title">⚠ Warnings</div>
+              {quote.warnings.map((warning) => (
+                <p key={warning}>{warning}</p>
+              ))}
+            </div>
           )}
         </div>
       </div>

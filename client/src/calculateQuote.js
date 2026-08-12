@@ -79,13 +79,11 @@ export function calculateQuote(data) {
   const finalTotal = isYearly ? (yearlyCost - discountAmount) : monthlyCost;
 
   return {
-    isSingle,
     isYearly,
     adultCount,
     hospitalCoverPrice,
     extrasCoverPrice,
     familyFee,
-    hospitalCoverTotal,
     extrasCoverTotal,
     loadingTotal,
     monthlyCost,
