@@ -31,7 +31,6 @@ export function calculateQuote(data) {
   const hospitalCoverPrice = HOSPITAL_TIER_PRICES[data.hospital_cover_level] ?? 0;
   const extrasCoverPrice = EXTRAS_TIER_PRICES[data.extras_cover_level] ?? 0;
   const familyFee = data.cover_type === 'Family' ? FAMILY_UPGRADE_FEE : 0;
-  const loadingFeeTotal = 0;
 
   const warnings = [];
 
@@ -44,9 +43,8 @@ export function calculateQuote(data) {
   if (applicant1.unknown) {
     warnings.push('Applicant 1: Cover history is unknown — LHC loading has not been applied. This quote may be inaccurate.');
   }
-  if (applicant1.loading > 0) {
-    loadingFeeTotal = (hospitalCoverPrice * applicant1.loading);
-  }
+
+  const loadingTotal = hospitalCoverPrice * applicant1.loading;
 
   let applicant2 = null;
   if (!isSingle) {
@@ -58,14 +56,12 @@ export function calculateQuote(data) {
     if (applicant2.unknown) {
       warnings.push( 'Applicant 2: Cover history is unknown — LHC loading has not been applied. This quote may be inaccurate.');
     }
-    if (applicant2.loading > 0) {
-      loadingFeeTotal += (hospitalCoverPrice * applicant2.loading);
-    }
+    loadingTotal += (hospitalCoverPrice * applicant2.loading);
     hospitalCoverPrice = hospitalCoverPrice * 2;
     extrasCoverPrice = extrasCoverPrice * 2;
   }
 
-  const monthlyCost = hospitalCoverPrice + extrasCoverPrice + familyFee + loadingFeeTotal;
+  const monthlyCost = hospitalCoverPrice + extrasCoverPrice + familyFee + loadingTotal;
   const yearlyCost = monthlyCost * 12;
 
   const discountPercent = isYearly ? Number(data.annual_discount_percent || 0) : 0;
@@ -79,7 +75,7 @@ export function calculateQuote(data) {
     adultCount,
     hospitalCoverPrice,
     extrasCoverPrice,
-    loadingFeeTotal,
+    loadingTotal,
     familyFee,
     monthlyCost,
     yearlyCost,
