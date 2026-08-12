@@ -32,8 +32,8 @@ export function calculateQuote(data) {
   const extrasCoverPrice = EXTRAS_TIER_PRICES[data.extras_cover_level] ?? 0;
   const familyFee = data.cover_type === 'Family' ? FAMILY_UPGRADE_FEE : 0;
 
-  const applicant1LoadingCost = 0;
-  const applicant2LoadingCost = 0;
+  let applicant1LoadingCost = 0;
+  let applicant2LoadingCost = 0;
 
   const warnings = [];
 
