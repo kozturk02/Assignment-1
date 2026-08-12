@@ -140,10 +140,10 @@ function QuoteModal({ record, onClose }) {
                 </div>
                 <div className="quote-line">
                   <span>
-                    <b>NEW</b> Yearly Premium (
-                    {formatPercent(quote.discountPercent)} OFF)
+                    <b>NEW Yearly Premium (
+                    {formatPercent(quote.discountPercent)} OFF)</b>
                   </span>
-                  <span>{formatMoney(quote.finalTotal)}</span>
+                  <span><b>{formatMoney(quote.finalTotal)}</b></span>
                 </div>
               </>
             )}
