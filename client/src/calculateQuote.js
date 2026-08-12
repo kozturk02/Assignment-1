@@ -67,9 +67,9 @@ export function calculateQuote(data) {
   const yearlyCost = monthlyCost * 12;
 
   const discountPercent = isYearly ? Number(data.annual_discount_percent || 0) : 0;
-  const discountAmount = isYearly ? yearlyBeforeDiscount * (discountPercent / 100) : 0;
+  const discountAmount = isYearly ? yearlyCost * (discountPercent / 100) : 0;
 
-  const finalTotal = isYearly ? (yearlyAfterDiscount - discountAmount) : monthlyPremium;
+  const finalTotal = isYearly ? (yearlyCost - discountAmount) : monthlyCost;
 
   return {
     isSingle,
