@@ -34,20 +34,20 @@ function QuoteModal({ record, onClose }) {
 
           <div className="quote-lines">
             <div className="quote-line">
-              <span>Hospital cover plan({quote.hospitalCoverLevel})</span>
+              <span>Hospital premium ({quote.hospitalCoverLevel} Cover)</span>
               <span>{formatMoney(quote.hospitalCoverPrice)}</span>
             </div>
             <div className="quote-line">
-              <span>&nbsp;&nbsp;Loading Fee (Base price + {formatPercent(quote.applicant1LoadingPercent)})</span>
+              <span>&nbsp;&nbsp;LHC loading Fee (Base + {formatPercent(quote.applicant1LoadingPercent)})</span>
               <span>{formatMoney(quote.applicant1LoadingCost)}</span>
             </div>
             {quote.applicant2LoadingPercent !== null && (<>
             <div className="quote-line">
-              <span>Spouse cover plan ({quote.hospitalCoverLevel})</span>
+              <span>Spouses' premium ({quote.hospitalCoverLevel} Cover)</span>
               <span>{formatMoney(quote.hospitalCoverPrice)}</span>
             </div>
               <div className="quote-line">
-                <span>&nbsp;&nbsp;Loading Fee ({formatPercent(quote.applicant2LoadingPercent)})</span>
+                <span>&nbsp;&nbsp;LHC loading Fee (Base + {formatPercent(quote.applicant2LoadingPercent)})</span>
                 <span>{formatMoney(quote.applicant2LoadingCost)}</span>
               </div>
             </>)}
@@ -58,13 +58,13 @@ function QuoteModal({ record, onClose }) {
 
             {quote.extrasCoverTotal > 0 && (
               <div className="quote-line">
-                <span>Extras premium ({quote.extrasCoverLevel}) x{quote.adultCount} Adult(s)</span>
+                <span>x{quote.adultCount} Extras premium ({quote.extrasCoverLevel} Cover)</span>
                 <span>{formatMoney(quote.extrasCoverTotal)}</span>
             </div>
             )}
             {quote.familyFee > 0 && (
               <div className="quote-line">
-                <span>Family upgrade fee</span>
+                <span>Family premium (children included)</span>
                 <span>{formatMoney(quote.familyFee)}</span>
               </div>
             )}
