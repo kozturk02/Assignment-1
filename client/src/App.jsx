@@ -85,6 +85,7 @@ function App() {
   }
 
   async function handleSubmit(event) {
+    setErrorMessage('');
     event.preventDefault();
 
     const payload = buildPayload();
@@ -173,6 +174,7 @@ function handleQuote() {
 }
 
   function handleEditClick(record) {
+    setErrorMessage('');
     setEditingId(record.id);
     setForm({
       customer_name: record.customer_name,
@@ -193,6 +195,7 @@ function handleQuote() {
   function handleCancelEdit() {
     setEditingId(null);
     setForm(initialForm);
+    setErrorMessage('');
   }
 
   async function handleDelete(id) {
@@ -403,6 +406,8 @@ function handleQuote() {
                 {errorMessage}
                </div>
               )}
+            </div>
+            <div className="form-actions full-width">
               <button
                 type="button"
                 className="btn-view-quote"
