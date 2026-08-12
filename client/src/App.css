@@ -436,7 +436,7 @@ body {
 }
 
 .quote-line-tip {
-  display: flex;
+  text-align: left;
   justify-content: space-between;
   font-size: 14px;
   color: #1e40af;
