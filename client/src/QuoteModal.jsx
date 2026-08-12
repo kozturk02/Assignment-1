@@ -60,7 +60,6 @@ function QuoteModal({ record, onClose }) {
                 <span>{formatPercent(quote.applicant2LoadingPercent)}</span>
               </div>
             )}
-
             <div className="quote-line-divider" />
 
             <div className="quote-line">
