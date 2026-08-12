@@ -439,7 +439,7 @@ body {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
-  color: #1613af;
+  color: #1e40af;
 }
 
 .quote-line-final {
@@ -461,6 +461,7 @@ body {
 }
 
 .quote-box p {
+  align-items: left;
   margin: 4px 0 0 0;
 }
 

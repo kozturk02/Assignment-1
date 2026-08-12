@@ -39,9 +39,6 @@ function QuoteModal({ record, onClose }) {
                 <span>&nbsp;&nbsp;&nbsp;&nbsp;LHC loading fee (Base + {formatPercent(quote.applicant1LoadingPercent)})</span>
                 <span>{formatMoney(quote.applicant1LoadingCost)}</span>
               </div>
-              <div className="quote-line-tip">
-                <span>&nbsp;&nbsp;&nbsp;&nbsp;Lifetime Health Cover Fee (+2% each year after age 30) </span>
-              </div>
             </>)}
             {quote.adultCount > 1 && (<>
             <div className="quote-line">
@@ -53,14 +50,12 @@ function QuoteModal({ record, onClose }) {
                 <span>&nbsp;&nbsp;&nbsp;&nbsp;LHC loading fee (Base + {formatPercent(quote.applicant2LoadingPercent)})</span>
                 <span>{formatMoney(quote.applicant2LoadingCost)}</span>
               </div>
-              <div className="quote-line-tip">
-                <span>&nbsp;&nbsp;&nbsp;&nbsp;Lifetime Health Cover Fee (+2% each year after age 30) </span>
-              </div>
             </>)}
             </>)}
 
             {quote.loadingTotal > 0 && (
             <div className="quote-box quote-box-info">
+              <p>Lifetime Health Cover Fee (+2% each year after age 30)</p>
               <p>{LHC_STATEMENT}</p>
             </div>
             )}
