@@ -50,15 +50,24 @@ Runs the app on http://localhost:5173
 
 ## Database Setup
 
-The database is SQLite, created and initialised by server/db.js.
+The database is SQLite, created and initialised by server/db.js. There is no
+separate init.sql file, since better-sqlite3 lets the schema be defined directly
+in JavaScript.
 
 When the server starts, db.js:
 
-Opens or creates, if missing, a file called records.db in the server folder. This file is the entire database.
+1. Opens or creates, if missing, a file called records.db in the server folder.
+   This file is the entire database.
+2. Runs CREATE TABLE IF NOT EXISTS records (...), defining the columns for a
+   quote record: customer name, cover type, applicant ages and hospital history,
+   cover levels, payment frequency, discount, notes, and an auto-filled
+   created_at timestamp.
 
-No manual setup step is required. Running npm run dev in server/ creates the database on first launch.
+No manual setup step is required. Running ./setup_ubuntu.sh, or simply starting
+the server, creates the database on first launch.
 
-To reset the database, stop the server, delete records.db, and restart it. The table is recreated automatically.
+To reset the database, stop the server, delete records.db, and restart it. The
+table is recreated automatically, empty.
 
 ## How the Quote Calculation Works
 
@@ -84,6 +93,20 @@ Lifetime Health Cover (LHC) loading applies only to the hospital premium cover:
 
 The annual-payment discount (0-10%) only applies when Payment Frequency is Yearly. It has no effect on monthly pricing.
 
+## How Family Cover Is Calculated
+
+Selecting Family as the cover type affects pricing in two ways:
+
+1. Adult count is 2, the same as Couple cover. Both applicants' hospital and extras
+   premiums are calculated individually, including separate LHC loading per
+   applicant based on each one's own age and hospital cover history.
+2. A flat $30 a month family upgrade fee is added once per policy, not per adult,
+   on top of both adults' hospital and extras totals. Children are not counted or
+   priced individually.
+
+So a Family quote's monthly premium equals Applicant 1's loaded hospital premium
+plus Applicant 2's loaded hospital premium, plus extras tier price x 2, plus $30.
+
 ## AI Assistance
 
 This project was built through an interactive, step-by-step collaboration with Claude, used as a coding tutor and pair-programmer throughout development.
@@ -99,6 +122,7 @@ What I did myself:
 - Coded the specific form fields, validation rules, and pricing rules, and the UI layout, based on a mockup I made.
 - Wrote and edited the code in my own files, integrating and adjusting AI-suggested code rather than pasting it in unreviewed.
 - Diagnosed the root cause of at least two real bugs myself during debugging: a const reassignment error, and an operator-precedence logic error in a conditional render.
+- I chose to separate configurable values into their own files rather than hardcoding them inline. Error messages can be found in errorMsgConfig.js, and all pricing figures and rules are located in pricingConfig.js.
 
 ## Limitation
 
