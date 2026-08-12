@@ -3,6 +3,7 @@ import './App.css';
 import QuoteModal from './QuoteModal';
 
 const API_URL = 'http://localhost:3001';
+const RECORDS_PER_PAGE = 6;
 
 const initialForm = {
   customer_name: '',
@@ -18,30 +19,9 @@ const initialForm = {
   notes: '',
 };
 
-function formatDate(sqliteTimestamp) {
-  if (!sqliteTimestamp) return '';
-  const date = new Date(sqliteTimestamp.replace(' ', 'T') + 'Z');
-  return date.toLocaleDateString('en-AU', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-}
-
-function getPageNumbers(current, total) {
-  if (total <= 5) {
-    return Array.from({ length: total }, (_, i) => i + 1);
-  }
-
-  if (current <= 3) {
-    return [1, 2, 3, '...', total];
-  }
-
-  if (current >= total - 2) {
-    return [1, '...', total - 2, total - 1, total];
-  }
-
-  return [1, '...', current, '...', total];
+function formatDate(timestamp) {
+  if (!timestamp) return '';
+  return new Date(timestamp.replace(' ', 'T')).toLocaleDateString('en-AU');
 }
 
 function App() {
@@ -51,7 +31,6 @@ function App() {
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const RECORDS_PER_PAGE = 6;
 
   useEffect(() => {
     fetch(`${API_URL}/records`)
@@ -64,10 +43,6 @@ function App() {
     setForm({ ...form, [field]: value });
   }
 
-  function toggleExpand(id) {
-    setExpandedId(expandedId === id ? null : id);
-  }
-
   function buildPayload() {
     const isSingle = form.cover_type === 'Single';
     const isYearly = form.payment_frequency === 'Yearly';
@@ -78,9 +53,7 @@ function App() {
       applicant_1_age: Number(form.applicant_1_age),
       applicant_1_hospital_history: form.applicant_1_hospital_history,
       applicant_2_age: isSingle ? null : Number(form.applicant_2_age),
-      applicant_2_hospital_history: isSingle
-        ? null
-        : form.applicant_2_hospital_history,
+      applicant_2_hospital_history: isSingle ? null : form.applicant_2_hospital_history,
       hospital_cover_level: form.hospital_cover_level,
       extras_cover_level: form.extras_cover_level,
       payment_frequency: form.payment_frequency,
@@ -95,16 +68,13 @@ function App() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    const payload = buildPayload();
-    const url = editingId
-      ? `${API_URL}/records/${editingId}`
-      : `${API_URL}/records`;
+    const url = editingId ? `${API_URL}/records/${editingId}` : `${API_URL}/records`;
     const method = editingId ? 'PUT' : 'POST';
 
     const res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(buildPayload()),
     });
 
     if (!res.ok) {
@@ -116,7 +86,7 @@ function App() {
     const saved = await res.json();
 
     if (editingId) {
-      setRecords(records.map((r) => (r.id === editingId ? saved : r)));
+      setRecords(records.map((record) => (record.id === editingId ? saved : record)));
       setEditingId(null);
     } else {
       setRecords([...records, saved]);
@@ -155,10 +125,9 @@ function App() {
 
   const isSingle = form.cover_type === 'Single';
   const isYearly = form.payment_frequency === 'Yearly';
-  const needsApplicant2 = !isSingle;
 
-  const filteredRecords = records.filter((r) =>
-    r.customer_name.toLowerCase().includes(search.toLowerCase())
+  const filteredRecords = records.filter((record) =>
+    record.customer_name.toLowerCase().includes(search.toLowerCase())
   );
 
   const totalPages = Math.max(1, Math.ceil(filteredRecords.length / RECORDS_PER_PAGE));
@@ -167,27 +136,30 @@ function App() {
 
   return (
     <div className="App">
-      <header className="page-header">
-        <h1>Health Cover Records</h1>
-      </header>
+      <h1>Health Cover Records</h1>
 
       <div className="layout">
-        <div className="form-panel">
-          <div className="panel-header">
-            <h2>Create Quote</h2>
-            <p>Enter the details below to generate a health cover quote.</p>
-          </div>
+        <section className="form-panel">
+          <h2>{editingId ? 'Edit Quote' : 'Create Quote'}</h2>
 
           <form onSubmit={handleSubmit} className="quote-form">
             <label className="full-width">
               Customer name
               <input
                 type="text"
-                placeholder="e.g. John Smith"
                 required
                 value={form.customer_name}
                 onChange={(e) => updateField('customer_name', e.target.value)}
               />
+            </label>
+
+            <label>
+              Cover type
+              <select value={form.cover_type} onChange={(e) => updateField('cover_type', e.target.value)}>
+                <option value="Single">Single</option>
+                <option value="Couple">Couple</option>
+                <option value="Family">Family</option>
+              </select>
             </label>
 
             <label>
@@ -196,7 +168,6 @@ function App() {
                 type="number"
                 min="18"
                 max="100"
-                placeholder="18–100"
                 required
                 value={form.applicant_1_age}
                 onChange={(e) => updateField('applicant_1_age', e.target.value)}
@@ -204,12 +175,10 @@ function App() {
             </label>
 
             <label>
-              Applicant 1 hospital cover history
+              Applicant 1 hospital history
               <select
                 value={form.applicant_1_hospital_history}
-                onChange={(e) =>
-                  updateField('applicant_1_hospital_history', e.target.value)
-                }
+                onChange={(e) => updateField('applicant_1_hospital_history', e.target.value)}
               >
                 <option value="Yes">Yes</option>
                 <option value="No">No</option>
@@ -217,51 +186,36 @@ function App() {
               </select>
             </label>
 
-            {needsApplicant2 && (
-  <>
-    <label>
-      Applicant 2 age
-      <input
-        type="number"
-        min="18"
-        max="100"
-        required
-        value={form.applicant_2_age}
-        onChange={(e) => updateField('applicant_2_age', e.target.value)}
-      />
-    </label>
+            {!isSingle && (
+              <>
+                <label>
+                  Applicant 2 age
+                  <input
+                    type="number"
+                    min="18"
+                    max="100"
+                    required
+                    value={form.applicant_2_age}
+                    onChange={(e) => updateField('applicant_2_age', e.target.value)}
+                  />
+                </label>
 
-    <label>
-      Applicant 2 hospital cover history
-      <select
-        required
-        value={form.applicant_2_hospital_history}
-        onChange={(e) =>
-          updateField('applicant_2_hospital_history', e.target.value)
-        }
-      >
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-        <option value="Not sure">Not sure</option>
-      </select>
-    </label>
-  </>
-)}
+                <label>
+                  Applicant 2 hospital history
+                  <select
+                    value={form.applicant_2_hospital_history}
+                    onChange={(e) => updateField('applicant_2_hospital_history', e.target.value)}
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="Not sure">Not sure</option>
+                  </select>
+                </label>
+              </>
+            )}
 
             <label>
-              Cover type
-              <select
-                value={form.cover_type}
-                onChange={(e) => updateField('cover_type', e.target.value)}
-              >
-                <option value="Single">Single</option>
-                <option value="Couple">Couple</option>
-                <option value="Family">Family</option>
-              </select>
-            </label>
-
-                        <label>
-              Hospital cover level
+              Hospital cover
               <select
                 value={form.hospital_cover_level}
                 onChange={(e) => updateField('hospital_cover_level', e.target.value)}
@@ -275,7 +229,7 @@ function App() {
             </label>
 
             <label>
-              Extras cover level
+              Extras cover
               <select
                 value={form.extras_cover_level}
                 onChange={(e) => updateField('extras_cover_level', e.target.value)}
@@ -288,7 +242,7 @@ function App() {
             </label>
 
             <label>
-              Payment frequency
+              Payment
               <select
                 value={form.payment_frequency}
                 onChange={(e) => updateField('payment_frequency', e.target.value)}
@@ -298,142 +252,91 @@ function App() {
               </select>
             </label>
 
-
-{isYearly && (
-  <label>
-    Annual-payment discount %
-    <input
-      type="number"
-      min="0"
-      max="10"
-      value={form.annual_discount_percent}
-      onChange={(e) =>
-        updateField('annual_discount_percent', e.target.value)
-      }
-    />
-  </label>
-)}
+            {isYearly && (
+              <label>
+                Annual discount %
+                <input
+                  type="number"
+                  min="0"
+                  max="10"
+                  value={form.annual_discount_percent}
+                  onChange={(e) => updateField('annual_discount_percent', e.target.value)}
+                />
+              </label>
+            )}
 
             <label className="full-width">
-              Notes (optional)
-              <textarea
-                placeholder="Add any additional notes..."
-                value={form.notes}
-                onChange={(e) => updateField('notes', e.target.value)}
-              />
+              Notes
+              <textarea value={form.notes} onChange={(e) => updateField('notes', e.target.value)} />
             </label>
 
-<div className="form-actions full-width">
-  <button
-    type="button"
-    className="btn-view-quote"
-    onClick={() => setQuoteModalData(form)}
-  >
-    View Quote
-  </button>
-  {editingId && (
-                <button type="button" className="btn-cancel" onClick={handleCancelEdit}>
+            <div className="form-actions full-width">
+              <button type="button" onClick={() => setQuoteModalData(form)}>
+                View Quote
+              </button>
+
+              {editingId && (
+                <button type="button" onClick={cancelEdit}>
                   Cancel
                 </button>
               )}
-              <button type="submit" className="btn-primary">
-                {editingId ? 'Update Quote' : '+  Create Quote'}
-              </button>
+
+              <button type="submit">{editingId ? 'Update Quote' : 'Create Quote'}</button>
             </div>
           </form>
-        </div>
+        </section>
 
-        <div className="records-panel">
-          <div className="records-header">
-            <h2>Your Records</h2>
-            <span className="quote-count">{records.length} quotes</span>
-          </div>
+        <section className="records-panel">
+          <h2>Your Records ({records.length})</h2>
 
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Search records..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-            />
-          </div>
+          <input
+            className="search-input"
+            type="text"
+            placeholder="Search records"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
 
           <div className="records-list">
             {paginatedRecords.map((record) => (
               <div key={record.id} className="record-card">
-                <div className="record-row" onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditClick(record);
-                      }}>
-                  <div className="record-summary">
-                    <strong>{record.customer_name}</strong>
-                    <span className="record-meta">
-                      {formatDate(record.created_at)}
-                    </span>
-                  </div>
-                  <div className="record-actions">
-                    <button
-                      className="btn-delete"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(record.id);
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
+                <button className="record-main" onClick={() => handleEdit(record)}>
+                  <strong>{record.customer_name}</strong>
+                  <span>{formatDate(record.created_at)}</span>
+                </button>
+
+                <button className="delete-button" onClick={() => deleteRecord(record.id)}>
+                  Delete
+                </button>
               </div>
             ))}
 
-{filteredRecords.length === 0 && (
-  <p className="no-results">No records match your search.</p>
-)}
-</div>
+            {filteredRecords.length === 0 && <p>No records found.</p>}
+          </div>
 
-{filteredRecords.length > 0 && (
-  <div className="pagination">
-    <button
-      className="btn-page btn-arrow"
-      disabled={currentPage === 1}
-      onClick={() => setCurrentPage((p) => p - 1)}
-    >
-      ‹
-    </button>
+          {filteredRecords.length > RECORDS_PER_PAGE && (
+            <div className="pagination">
+              <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>
+                Previous
+              </button>
 
-    {getPageNumbers(currentPage, totalPages).map((page, index) =>
-      page === '...' ? (
-        <span key={`ellipsis-${index}`} className="page-ellipsis">
-          ...
-        </span>
-      ) : (
-        <button
-          key={page}
-          className={`btn-page ${page === currentPage ? 'btn-page-active' : ''}`}
-          onClick={() => setCurrentPage(page)}
-        >
-          {page}
-        </button>
-      )
-    )}
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
 
-    <button
-      className="btn-page btn-arrow"
-      disabled={currentPage === totalPages}
-      onClick={() => setCurrentPage((p) => p + 1)}
-    >
-      ›
-    </button>
-  </div>
-)}
-        </div>
-</div>
+              <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>
+                Next
+              </button>
+            </div>
+          )}
+        </section>
+      </div>
 
       {quoteModalData && (
-        <QuoteModal
-          record={quoteModalData}
-          onClose={() => setQuoteModalData(null)}
-        />
+        <QuoteModal record={quoteModalData} onClose={() => setQuoteModalData(null)} />
       )}
     </div>
   );
