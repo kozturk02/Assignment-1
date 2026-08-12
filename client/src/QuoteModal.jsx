@@ -34,32 +34,42 @@ function QuoteModal({ record, onClose }) {
 
           <div className="quote-lines">
             <div className="quote-line">
-              <span>Hospital cover ({quote.hospitalCoverLevel}) x{quote.adultCount} Adult(s)</span>
+              <span>Hospital cover plan({quote.hospitalCoverLevel})</span>
               <span>{formatMoney(quote.hospitalCoverPrice)}</span>
             </div>
             <div className="quote-line">
-              <span>Extras premium ({quote.extrasCoverLevel}) x{quote.adultCount} Adult(s)</span>
-              <span>{formatMoney(quote.extrasCoverPrice)}</span>
+              <span>&nbsp;&nbsp;Loading Fee (Base price + {formatPercent(quote.applicant1LoadingPercent)})</span>
+              <span>{formatMoney(quote.applicant1LoadingCost)}</span>
             </div>
+            {quote.applicant2LoadingPercent !== null && (<>
+            <div className="quote-line">
+              <span>Spouse cover plan ({quote.hospitalCoverLevel})</span>
+              <span>{formatMoney(quote.hospitalCoverPrice)}</span>
+            </div>
+              <div className="quote-line">
+                <span>&nbsp;&nbsp;Loading Fee ({formatPercent(quote.applicant2LoadingPercent)})</span>
+                <span>{formatMoney(quote.applicant2LoadingCost)}</span>
+              </div>
+            </>)}
+
+            {quote.extrasCoverTotal > 0 || quote.familyFee > 0 && (<>
+            
+            <div className="quote-line-divider" />
+
+            {quote.extrasCoverTotal > 0 && (
+              <div className="quote-line">
+                <span>Extras premium ({quote.extrasCoverLevel}) x{quote.adultCount} Adult(s)</span>
+                <span>{formatMoney(quote.extrasCoverTotal)}</span>
+            </div>
+            )}
             {quote.familyFee > 0 && (
               <div className="quote-line">
                 <span>Family upgrade fee</span>
                 <span>{formatMoney(quote.familyFee)}</span>
               </div>
             )}
+            </>)}
 
-            <div className="quote-line-divider" />
-
-            <div className="quote-line">
-              <span>Applicant 1 loading ({formatPercent(quote.applicant1LoadingPercent)})</span>
-              <span>{formatMoney(quote.applicant1LoadingCost)}</span>
-            </div>
-            {quote.applicant2LoadingPercent !== null && (
-              <div className="quote-line">
-                <span>Applicant 2 loading ({formatPercent(quote.applicant2LoadingPercent)})</span>
-                <span>{formatMoney(quote.applicant2LoadingCost)}</span>
-              </div>
-            )}
             <div className="quote-line-divider" />
 
             <div className="quote-line">
@@ -67,7 +77,6 @@ function QuoteModal({ record, onClose }) {
               <span>{formatMoney(quote.monthlyCost)}</span>
             </div>
             <div className="quote-line">
-              <span>Estimated Yearly premium</span>
               {quote.discountAmount === 0 && (<>
                 <span>Estimated yearly premium</span>
                 <span>{formatMoney(quote.yearlyCost)}</span>

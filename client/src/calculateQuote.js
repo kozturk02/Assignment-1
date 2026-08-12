@@ -32,6 +32,9 @@ export function calculateQuote(data) {
   const extrasCoverPrice = EXTRAS_TIER_PRICES[data.extras_cover_level] ?? 0;
   const familyFee = data.cover_type === 'Family' ? FAMILY_UPGRADE_FEE : 0;
 
+  const applicant1LoadingCost = 0;
+  const applicant2LoadingCost = 0;
+
   const warnings = [];
 
   const applicant1 = getLhcLoading(
@@ -44,7 +47,9 @@ export function calculateQuote(data) {
     warnings.push('Applicant 1: Cover history is unknown — LHC loading has not been applied. This quote may be inaccurate.');
   }
 
-  const loadingTotal = hospitalCoverPrice * applicant1.loading;
+  if (applicant1.loading > 0) {
+    applicant1LoadingCost = hospitalCoverPrice + (hospitalCoverPrice * applicant1.loading);
+  }
 
   let applicant2 = null;
   if (!isSingle) {
@@ -56,12 +61,16 @@ export function calculateQuote(data) {
     if (applicant2.unknown) {
       warnings.push( 'Applicant 2: Cover history is unknown — LHC loading has not been applied. This quote may be inaccurate.');
     }
-    loadingTotal += (hospitalCoverPrice * applicant2.loading);
-    hospitalCoverPrice = hospitalCoverPrice * 2;
-    extrasCoverPrice = extrasCoverPrice * 2;
+    if (applicant2.loading > 0) {
+      applicant2LoadingCost = hospitalCoverPrice + (hospitalCoverPrice * applicant2.loading);
+    }
   }
 
-  const monthlyCost = hospitalCoverPrice + extrasCoverPrice + familyFee + loadingTotal;
+  const hospitalCoverTotal = hospitalCoverPrice * adultCount;
+  const extrasCoverTotal = extrasCoverPrice * adultCount;
+  const loadingTotal = applicant1LoadingCost + applicant2LoadingCost;
+
+  const monthlyCost = hospitalCoverTotal + extrasCoverTotal + familyFee + loadingTotal;
   const yearlyCost = monthlyCost * 12;
 
   const discountPercent = isYearly ? Number(data.annual_discount_percent || 0) : 0;
@@ -75,19 +84,20 @@ export function calculateQuote(data) {
     adultCount,
     hospitalCoverPrice,
     extrasCoverPrice,
-    loadingTotal,
     familyFee,
+    hospitalCoverTotal,
+    extrasCoverTotal,
     monthlyCost,
     yearlyCost,
     discountPercent,
     discountAmount,
     finalTotal,
-    hospitalCoverLevel: data.hospital_cover_level,
-    extrasCoverLevel: data.extras_cover_level,
-    applicant1LoadingCost: applicant1.loading,
-    applicant2LoadingCost: applicant2 ? applicant2.loading : null,
+    applicant1LoadingCost,
+    applicant2LoadingCost,
     applicant1LoadingPercent: applicant1.loading * 100,
     applicant2LoadingPercent: applicant2 ? applicant2.loading * 100 : null,
+    hospitalCoverLevel: data.hospital_cover_level,
+    extrasCoverLevel: data.extras_cover_level,
     warnings,
   };
 }
