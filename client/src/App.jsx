@@ -120,6 +120,57 @@ function App() {
     setForm(initialForm);
   }
 
+function handleQuote() {
+  setErrorMessage('');
+
+  const applicant1Age = Number(form.applicant_1_age);
+  const applicant2Age = Number(form.applicant_2_age);
+  const annualDiscount = Number(form.annual_discount_percent);
+
+  if (
+    !form.applicant_1_age ||
+    applicant1Age < 18 ||
+    applicant1Age > 100
+  ) {
+    setErrorMessage('Applicant 1 age must be between 18 and 100.');
+    return;
+  }
+
+  const needsApplicant2 =
+    form.cover_type === 'Couple' || form.cover_type === 'Family';
+
+  if (
+    needsApplicant2 &&
+    (!form.applicant_2_age ||
+      applicant2Age < 18 ||
+      applicant2Age > 100)
+  ) {
+    setErrorMessage('Applicant 2 age must be between 18 and 100.');
+    return;
+  }
+
+  if (
+    form.extras_cover_level === 'None' &&
+    form.hospital_cover_level === 'None'
+  ) {
+    setErrorMessage(
+      'Please select at least one hospital or extras cover option.'
+    );
+    return;
+  }
+
+  if (
+    form.payment_frequency === 'Yearly' &&
+    form.annual_discount_percent !== '' &&
+    (annualDiscount < 0 || annualDiscount > 10)
+  ) {
+    setErrorMessage('Annual discount must be between 0% and 10%.');
+    return;
+  }
+
+  setQuoteModalData(form);
+}
+
   function handleEditClick(record) {
     setEditingId(record.id);
     setForm({
@@ -346,10 +397,15 @@ function App() {
             </label>
 
             <div className="form-actions full-width">
+              {errorMessage && (
+                <div className="form-error">
+                {errorMessage}
+               </div>
+              )}
               <button
                 type="button"
                 className="btn-view-quote"
-                onClick={() => setQuoteModalData(form)}
+                  onClick={handleQuote}
               >
                 View Quote
               </button>

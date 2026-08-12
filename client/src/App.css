@@ -420,3 +420,13 @@ body {
   color: #9a3412;
   border: 1px solid #fed7aa;
 }
+
+.form-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
