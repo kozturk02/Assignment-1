@@ -2,10 +2,7 @@ import { calculateQuote } from './calculateQuote';
 import { LHC_STATEMENT } from './pricingConfig';
 
 function formatMoney(amount) {
-  return `$${amount.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  return `$${amount.toFixed(2)}`;
 }
 
 function formatPercent(value) {
@@ -37,20 +34,36 @@ function QuoteModal({ record, onClose }) {
               <span>Hospital premium ({quote.hospitalCoverLevel} Cover)</span>
               <span>{formatMoney(quote.hospitalCoverPrice)}</span>
             </div>
-            <div className="quote-line">
-              <span>&nbsp;&nbsp;LHC loading Fee (Base + {formatPercent(quote.applicant1LoadingPercent)})</span>
-              <span>{formatMoney(quote.applicant1LoadingCost)}</span>
-            </div>
-            {quote.applicant2LoadingPercent !== null && (<>
+            {quote.applicant1LoadingCost > 0 && (<>
+              <div className="quote-line">
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;LHC loading fee (Base + {formatPercent(quote.applicant1LoadingPercent)})</span>
+                <span>{formatMoney(quote.applicant1LoadingCost)}</span>
+              </div>
+              <div className="quote-line-tip">
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;Lifetime Health Cover Fee (+2% each year after age 30) </span>
+              </div>
+            </>)}
+            {quote.adultCount > 1 && (<>
             <div className="quote-line">
               <span>Spouses' premium ({quote.hospitalCoverLevel} Cover)</span>
               <span>{formatMoney(quote.hospitalCoverPrice)}</span>
             </div>
+            {quote.applicant2LoadingCost > 0 && (<>
               <div className="quote-line">
-                <span>&nbsp;&nbsp;LHC loading Fee (Base + {formatPercent(quote.applicant2LoadingPercent)})</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;LHC loading fee (Base + {formatPercent(quote.applicant2LoadingPercent)})</span>
                 <span>{formatMoney(quote.applicant2LoadingCost)}</span>
               </div>
+              <div className="quote-line-tip">
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;Lifetime Health Cover Fee (+2% each year after age 30) </span>
+              </div>
             </>)}
+            </>)}
+
+            {quote.loadingTotal > 0 && (
+            <div className="quote-box quote-box-info">
+              <p>{LHC_STATEMENT}</p>
+            </div>
+            )}
 
             {(quote.extrasCoverTotal > 0 || quote.familyFee > 0) && (<>
 
@@ -107,10 +120,12 @@ function QuoteModal({ record, onClose }) {
               <span>{formatMoney(quote.finalTotal)}</span>
             </div>
           </div>
-          <div className="quote-box quote-box-info">
-            <div className="quote-box-title">ⓘ LHC required statement</div>
-            <p>{LHC_STATEMENT}</p>
+          {quote.warnings.length > 0 && (
+          <div className="quote-box quote-box-warning">
+            <div className="quote-box-title">⚠ Warnings</div>
+              {quote.warnings.map((w, i) => <p key={i}>{w}</p>)}
           </div>
+          )}
         </div>
       </div>
     </div>

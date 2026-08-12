@@ -3,6 +3,7 @@ import './App.css';
 import QuoteModal from './QuoteModal';
 
 const API_URL = 'http://localhost:3001';
+const RECORDS_PER_PAGE = 6;
 
 const initialForm = {
   customer_name: '',
@@ -18,14 +19,9 @@ const initialForm = {
   notes: '',
 };
 
-function formatDate(sqliteTimestamp) {
-  if (!sqliteTimestamp) return '';
-  const date = new Date(sqliteTimestamp.replace(' ', 'T') + 'Z');
-  return date.toLocaleDateString('en-AU', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
+function formatDate(timestamp) {
+  if (!timestamp) return '';
+  return new Date(timestamp.replace(' ', 'T')).toLocaleDateString('en-AU');
 }
 
 function getPageNumbers(current, total) {
@@ -51,7 +47,6 @@ function App() {
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const RECORDS_PER_PAGE = 6;
 
   useEffect(() => {
     fetch(`${API_URL}/records`)
@@ -62,10 +57,6 @@ function App() {
 
   function updateField(field, value) {
     setForm({ ...form, [field]: value });
-  }
-
-  function toggleExpand(id) {
-    setExpandedId(expandedId === id ? null : id);
   }
 
   function buildPayload() {

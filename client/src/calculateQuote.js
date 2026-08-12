@@ -87,6 +87,7 @@ export function calculateQuote(data) {
     familyFee,
     hospitalCoverTotal,
     extrasCoverTotal,
+    loadingTotal,
     monthlyCost,
     yearlyCost,
     discountPercent,

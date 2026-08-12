@@ -340,7 +340,6 @@ body {
   font-size: 13px;
 }
 
-/* Quote Details Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -434,6 +433,13 @@ body {
   justify-content: space-between;
   font-size: 14px;
   color: #374151;
+}
+
+.quote-line-tip {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #1613af;
 }
 
 .quote-line-final {
