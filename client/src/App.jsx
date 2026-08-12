@@ -47,6 +47,7 @@ function App() {
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     fetch(`${API_URL}/records`)
