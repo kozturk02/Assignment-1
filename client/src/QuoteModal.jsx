@@ -52,12 +52,14 @@ function QuoteModal({ record, onClose }) {
               </div>
             </>
           )}
-            {quote.loadingTotal > 0 && (
-              <div className="quote-line">
+            {quote.loadingTotal > 0 && (<>
+              <div className="quote-line-tip">
                 <span>Lifetime Health Cover Fee (+2% each year after age 30)</span>
+              </div>
+              <div className="quote-line-tip">
                 <span>{LHC_STATEMENT}</span>
               </div>
-            )}
+            </>)}
             </>)}
 
             {(quote.extrasCoverTotal > 0 || quote.familyFee > 0) && (<>
